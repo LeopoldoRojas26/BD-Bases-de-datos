@@ -1,0 +1,16 @@
+const pool = require('../config/database');
+
+const initDatabase = async () => {
+  console.log('⚠️  init.js está DESHABILITADO');
+  console.log('📋 Para inicializar la base de datos:');
+  console.log('   1. Ir a Supabase → SQL Editor');
+  console.log('   2. Ejecutar tus archivos SQL manualmente');
+  console.log('   3. Crear triggers desde el SQL Editor');
+  console.log('');
+  console.log('✅ El backend se conectará a tu base de datos existente en Supabase\n');
+
+  // NO ejecutar nada - el usuario tiene sus propios archivos SQL
+  process.exit(0);
+};
+
+initDatabase();

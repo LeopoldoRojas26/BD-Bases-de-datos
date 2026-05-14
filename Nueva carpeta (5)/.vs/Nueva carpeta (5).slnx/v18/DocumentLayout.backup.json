@@ -1,0 +1,253 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\backend\\.env||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Redmarket\\backend\\.env||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\frontend\\src\\components\\Inventario.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Redmarket\\frontend\\src\\components\\Inventario.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\frontend\\src\\components\\Dashboard.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Redmarket\\frontend\\src\\components\\Dashboard.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\frontend\\src\\components\\Proveedores.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Redmarket\\frontend\\src\\components\\Proveedores.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\frontend\\src\\components\\Productos.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Redmarket\\frontend\\src\\components\\Productos.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\frontend\\src\\components\\Clientes.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Redmarket\\frontend\\src\\components\\Clientes.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\backend\\src\\config\\database.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Redmarket\\backend\\src\\config\\database.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\backend\\.env.example||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Redmarket\\backend\\.env.example||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\CONFIGURACION_SUPABASE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Redmarket\\CONFIGURACION_SUPABASE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\src\\database\\init.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Redmarket\\src\\database\\init.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\INDEX.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Redmarket\\INDEX.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\INICIO_SUPABASE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Redmarket\\INICIO_SUPABASE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\frontend\\src\\components\\Empleados.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Redmarket\\frontend\\src\\components\\Empleados.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\frontend\\src\\components\\Ventas.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Redmarket\\frontend\\src\\components\\Ventas.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 8,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Dashboard.jsx",
+              "DocumentMoniker": "C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\frontend\\src\\components\\Dashboard.jsx",
+              "RelativeDocumentMoniker": "Redmarket\\frontend\\src\\components\\Dashboard.jsx",
+              "ToolTip": "C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\frontend\\src\\components\\Dashboard.jsx",
+              "RelativeToolTip": "Redmarket\\frontend\\src\\components\\Dashboard.jsx",
+              "ViewState": "AgIAAFEAAAAAAAAAAAAuwFgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003663|",
+              "WhenOpened": "2026-05-12T10:53:07.668Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Inventario.jsx",
+              "DocumentMoniker": "C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\frontend\\src\\components\\Inventario.jsx",
+              "RelativeDocumentMoniker": "Redmarket\\frontend\\src\\components\\Inventario.jsx",
+              "ToolTip": "C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\frontend\\src\\components\\Inventario.jsx",
+              "RelativeToolTip": "Redmarket\\frontend\\src\\components\\Inventario.jsx",
+              "ViewState": "AgIAABQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003663|",
+              "WhenOpened": "2026-05-12T10:52:56.182Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Proveedores.jsx",
+              "DocumentMoniker": "C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\frontend\\src\\components\\Proveedores.jsx",
+              "RelativeDocumentMoniker": "Redmarket\\frontend\\src\\components\\Proveedores.jsx",
+              "ToolTip": "C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\frontend\\src\\components\\Proveedores.jsx",
+              "RelativeToolTip": "Redmarket\\frontend\\src\\components\\Proveedores.jsx",
+              "ViewState": "AgIAAB0AAAAAAAAAAAAawAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003663|",
+              "WhenOpened": "2026-05-12T10:52:35.4Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "Empleados.jsx",
+              "DocumentMoniker": "C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\frontend\\src\\components\\Empleados.jsx",
+              "RelativeDocumentMoniker": "Redmarket\\frontend\\src\\components\\Empleados.jsx",
+              "ToolTip": "C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\frontend\\src\\components\\Empleados.jsx",
+              "RelativeToolTip": "Redmarket\\frontend\\src\\components\\Empleados.jsx",
+              "ViewState": "AgIAACMAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003663|",
+              "WhenOpened": "2026-05-12T10:52:25.698Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Productos.jsx",
+              "DocumentMoniker": "C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\frontend\\src\\components\\Productos.jsx",
+              "RelativeDocumentMoniker": "Redmarket\\frontend\\src\\components\\Productos.jsx",
+              "ToolTip": "C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\frontend\\src\\components\\Productos.jsx",
+              "RelativeToolTip": "Redmarket\\frontend\\src\\components\\Productos.jsx",
+              "ViewState": "AgIAAIkAAAAAAAAAAAAuwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003663|",
+              "WhenOpened": "2026-05-12T10:52:16.511Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Clientes.jsx",
+              "DocumentMoniker": "C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\frontend\\src\\components\\Clientes.jsx",
+              "RelativeDocumentMoniker": "Redmarket\\frontend\\src\\components\\Clientes.jsx",
+              "ToolTip": "C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\frontend\\src\\components\\Clientes.jsx",
+              "RelativeToolTip": "Redmarket\\frontend\\src\\components\\Clientes.jsx",
+              "ViewState": "AgIAAG0AAAAAAAAAAAAuwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003663|",
+              "WhenOpened": "2026-05-12T10:52:06.655Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": ".env",
+              "DocumentMoniker": "C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\backend\\.env",
+              "RelativeDocumentMoniker": "Redmarket\\backend\\.env",
+              "ToolTip": "C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\backend\\.env",
+              "RelativeToolTip": "Redmarket\\backend\\.env",
+              "ViewState": "AgIAABIAAAAAAAAAAAAAAAEAAAAYAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-05-12T09:44:08.451Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "Ventas.jsx",
+              "DocumentMoniker": "C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\frontend\\src\\components\\Ventas.jsx",
+              "RelativeDocumentMoniker": "Redmarket\\frontend\\src\\components\\Ventas.jsx",
+              "ToolTip": "C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\frontend\\src\\components\\Ventas.jsx",
+              "RelativeToolTip": "Redmarket\\frontend\\src\\components\\Ventas.jsx",
+              "ViewState": "AgIAAIAAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003663|",
+              "WhenOpened": "2026-05-12T10:52:45.527Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "database.js",
+              "DocumentMoniker": "C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\backend\\src\\config\\database.js",
+              "RelativeDocumentMoniker": "Redmarket\\backend\\src\\config\\database.js",
+              "ToolTip": "C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\backend\\src\\config\\database.js",
+              "RelativeToolTip": "Redmarket\\backend\\src\\config\\database.js",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2026-05-12T09:38:23.281Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "INDEX.md",
+              "DocumentMoniker": "C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\INDEX.md",
+              "RelativeDocumentMoniker": "Redmarket\\INDEX.md",
+              "ToolTip": "C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\INDEX.md",
+              "RelativeToolTip": "Redmarket\\INDEX.md",
+              "ViewState": "AgIAAAwAAAAAAAAAAABBwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-12T09:31:18.295Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "init.js",
+              "DocumentMoniker": "C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\src\\database\\init.js",
+              "RelativeDocumentMoniker": "Redmarket\\src\\database\\init.js",
+              "ToolTip": "C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\src\\database\\init.js",
+              "RelativeToolTip": "Redmarket\\src\\database\\init.js",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2026-05-12T08:45:11.087Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "CONFIGURACION_SUPABASE.md",
+              "DocumentMoniker": "C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\CONFIGURACION_SUPABASE.md",
+              "RelativeDocumentMoniker": "Redmarket\\CONFIGURACION_SUPABASE.md",
+              "ToolTip": "C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\CONFIGURACION_SUPABASE.md",
+              "RelativeToolTip": "Redmarket\\CONFIGURACION_SUPABASE.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAIEBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-12T09:31:03.593Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "INICIO_SUPABASE.md",
+              "DocumentMoniker": "C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\INICIO_SUPABASE.md",
+              "RelativeDocumentMoniker": "Redmarket\\INICIO_SUPABASE.md",
+              "ToolTip": "C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\INICIO_SUPABASE.md",
+              "RelativeToolTip": "Redmarket\\INICIO_SUPABASE.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAMgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-12T09:32:10.498Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": ".env.example",
+              "DocumentMoniker": "C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\backend\\.env.example",
+              "RelativeDocumentMoniker": "Redmarket\\backend\\.env.example",
+              "ToolTip": "C:\\Users\\larv2\\OneDrive\\Desktop\\Nueva carpeta (5)\\Redmarket\\backend\\.env.example",
+              "RelativeToolTip": "Redmarket\\backend\\.env.example",
+              "ViewState": "AgIAABsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-05-12T09:30:03.006Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

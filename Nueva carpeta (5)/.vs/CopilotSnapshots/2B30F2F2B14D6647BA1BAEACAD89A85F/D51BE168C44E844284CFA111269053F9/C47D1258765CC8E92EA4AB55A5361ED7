@@ -1,0 +1,38 @@
+﻿# ============================================
+# SUPABASE CONFIGURATION
+# ============================================
+
+# Reemplaza esto con tu Connection String de Supabase:
+# Settings → Database → Connection String (URI mode)
+DATABASE_URL=postgresql://postgres.iflomtgmgmnhfkbcduru:[postgres123456780]@aws-1-us-west-1.pooler.supabase.com:6543/postgres
+
+# ⚠️ IMPORTANTE:
+# 1. Ir a Supabase → Settings → Database p
+
+# 2. Copiar "Connection String" en modo URI
+# 3. Reemplazar [YOUR-PASSWORD] con tu contraseña
+# 4. Pegar aquí arriba
+
+# ============================================
+# CONFIGURACIÓN LOCAL (DBngin) - DESHABILITADO
+# ============================================
+# Si quieres volver a usar DBngin, comenta DATABASE_URL y descomenta esto:
+# DB_HOST=localhost
+# DB_PORT=5433
+# DB_USER=postgres
+# DB_PASSWORD=
+# DB_NAME=Proyecto
+
+# ============================================
+# SERVIDOR
+# ============================================
+PORT=3000
+#
+# 3. Para servicios cloud (Aiven, Railway, etc.):
+#    - Usa DATABASE_URL en lugar de los parámetros individuales
+#    - DATABASE_URL=postgres://user:pass@host:port/database?sslmode=require
+
+# ============================================
+# SERVIDOR
+# ============================================
+PORT=3000

@@ -1,0 +1,164 @@
+﻿const pool = require('../config/database');
+
+const initDatabase = async () => {
+  const client = await pool.connect();
+  
+  try {
+    console.log('🔧 Inicializando base de datos...\n');
+
+    // Crear tabla de productos
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS productos (
+        id SERIAL PRIMARY KEY,
+        nombre VARCHAR(100) NOT NULL,
+        precio DECIMAL(10, 2) NOT NULL CHECK (precio >= 0),
+        stock INTEGER NOT NULL DEFAULT 0 CHECK (stock >= 0),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Tabla "productos" creada');
+
+    // Crear tabla de ventas
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS ventas (
+        id SERIAL PRIMARY KEY,
+        producto_id INTEGER NOT NULL REFERENCES productos(id) ON DELETE CASCADE,
+        cantidad INTEGER NOT NULL CHECK (cantidad > 0),
+        total DECIMAL(10, 2) NOT NULL,
+        fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Tabla "ventas" creada');
+
+    // Crear tabla de auditoría
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS auditoria_stock (
+        id SERIAL PRIMARY KEY,
+        producto_id INTEGER NOT NULL REFERENCES productos(id) ON DELETE CASCADE,
+        stock_anterior INTEGER NOT NULL,
+        stock_nuevo INTEGER NOT NULL,
+        motivo VARCHAR(50),
+        fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Tabla "auditoria_stock" creada');
+
+    // ========== TRIGGER 1: VALIDAR STOCK ANTES DE VENTA ==========
+    await client.query(`
+      DROP TRIGGER IF EXISTS trigger_validar_stock ON ventas;
+      DROP FUNCTION IF EXISTS validar_stock_disponible();
+    `);
+
+    await client.query(`
+      CREATE OR REPLACE FUNCTION validar_stock_disponible()
+      RETURNS TRIGGER AS $$
+      DECLARE
+        stock_actual INTEGER;
+        nombre_producto VARCHAR(100);
+      BEGIN
+        -- Obtener el stock actual del producto
+        SELECT stock, nombre INTO stock_actual, nombre_producto
+        FROM productos
+        WHERE id = NEW.producto_id;
+
+        -- Validar que haya stock suficiente
+        IF stock_actual < NEW.cantidad THEN
+          RAISE EXCEPTION 'Stock insuficiente para el producto "%" (ID: %). Stock disponible: %, Cantidad solicitada: %',
+            nombre_producto, NEW.producto_id, stock_actual, NEW.cantidad;
+        END IF;
+
+        RETURN NEW;
+      END;
+      $$ LANGUAGE plpgsql;
+    `);
+
+    await client.query(`
+      CREATE TRIGGER trigger_validar_stock
+      BEFORE INSERT ON ventas
+      FOR EACH ROW
+      EXECUTE FUNCTION validar_stock_disponible();
+    `);
+    console.log('✅ TRIGGER 1: "trigger_validar_stock" creado (valida stock disponible)');
+
+    // ========== TRIGGER 2: DESCONTAR STOCK Y AUDITORÍA ==========
+    await client.query(`
+      DROP TRIGGER IF EXISTS trigger_descontar_stock ON ventas;
+      DROP FUNCTION IF EXISTS descontar_stock_y_auditar();
+    `);
+
+    await client.query(`
+      CREATE OR REPLACE FUNCTION descontar_stock_y_auditar()
+      RETURNS TRIGGER AS $$
+      DECLARE
+        stock_anterior INTEGER;
+        stock_nuevo INTEGER;
+      BEGIN
+        -- Obtener el stock actual
+        SELECT stock INTO stock_anterior
+        FROM productos
+        WHERE id = NEW.producto_id;
+
+        -- Descontar el stock
+        UPDATE productos
+        SET stock = stock - NEW.cantidad,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = NEW.producto_id;
+
+        -- Obtener el nuevo stock
+        SELECT stock INTO stock_nuevo
+        FROM productos
+        WHERE id = NEW.producto_id;
+
+        -- Registrar en auditoría
+        INSERT INTO auditoria_stock (producto_id, stock_anterior, stock_nuevo, motivo)
+        VALUES (NEW.producto_id, stock_anterior, stock_nuevo, 'VENTA');
+
+        -- Validar que el stock no sea negativo (doble verificación)
+        IF stock_nuevo < 0 THEN
+          RAISE EXCEPTION 'Error crítico: El stock resultante es negativo (%). Transacción cancelada.', stock_nuevo;
+        END IF;
+
+        RETURN NEW;
+      END;
+      $$ LANGUAGE plpgsql;
+    `);
+
+    await client.query(`
+      CREATE TRIGGER trigger_descontar_stock
+      AFTER INSERT ON ventas
+      FOR EACH ROW
+      EXECUTE FUNCTION descontar_stock_y_auditar();
+    `);
+    console.log('✅ TRIGGER 2: "trigger_descontar_stock" creado (descuenta stock y audita)');
+
+    // Insertar datos de prueba
+    await client.query(`
+      INSERT INTO productos (nombre, precio, stock) VALUES
+        ('Laptop HP', 1200.00, 10),
+        ('Mouse Logitech', 25.50, 50),
+        ('Teclado Mecánico', 85.00, 30),
+        ('Monitor Samsung 24"', 180.00, 15),
+        ('Webcam HD', 45.00, 0)
+      ON CONFLICT DO NOTHING;
+    `);
+    console.log('✅ Datos de prueba insertados\n');
+
+    console.log('🎉 Base de datos inicializada correctamente\n');
+    console.log('📋 Resumen:');
+    console.log('   - Tablas: productos, ventas, auditoria_stock');
+    console.log('   - Triggers: trigger_validar_stock, trigger_descontar_stock');
+    console.log('   - Datos de prueba: 5 productos\n');
+
+  } catch (error) {
+    console.error('❌ Error al inicializar la base de datos:', error.message);
+    throw error;
+  } finally {
+    client.release();
+    await pool.end();
+  }
+};
+
+initDatabase()
+  .then(() => process.exit(0))
+  .catch(() => process.exit(1));

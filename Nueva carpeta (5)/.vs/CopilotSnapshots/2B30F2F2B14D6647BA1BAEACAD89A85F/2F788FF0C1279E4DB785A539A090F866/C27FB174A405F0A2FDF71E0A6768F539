@@ -1,0 +1,174 @@
+﻿import { useState, useEffect } from 'react';
+import { productosService } from '../services/api.service';
+import './Productos.css';
+
+const Productos = () => {
+  const [productos, setProductos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({
+    nombre: '',
+    descripcion: '',
+    precio: '',
+    categoria: '',
+    marca: '',
+  });
+  const [editingId, setEditingId] = useState(null);
+
+  useEffect(() => {
+    fetchProductos();
+  }, []);
+
+  const fetchProductos = async () => {
+    try {
+      setLoading(true);
+      const response = await productosService.getAll();
+      // Backend devuelve {success: true, data: [...]}
+      setProductos(response.data.data || response.data);
+      setError(null);
+    } catch (err) {
+      setError('Error al cargar productos: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (editingId) {
+        await productosService.update(editingId, formData);
+      } else {
+        await productosService.create(formData);
+      }
+      fetchProductos();
+      resetForm();
+      setShowModal(false);
+    } catch (err) {
+      alert('Error al guardar: ' + err.message);
+    }
+  };
+
+  const handleEdit = (producto) => {
+    setFormData({
+      nombre: producto.nombre,
+      descripcion: producto.descripcion || '',
+      precio: producto.precio,
+      categoria: producto.categoria || '',
+      marca: producto.marca || '',
+    });
+    setEditingId(producto.id_producto);
+    setShowModal(true);
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('¿Estás seguro de eliminar este producto?')) {
+      try {
+        await productosService.delete(id);
+        fetchProductos();
+      } catch (err) {
+        alert('Error al eliminar: ' + err.message);
+      }
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({ nombre: '', descripcion: '', precio: '', categoria: '', marca: '' });
+    setEditingId(null);
+  };
+
+  if (loading) return <div className="loading">Cargando productos...</div>;
+  if (error) return <div className="error">{error}</div>;
+
+  return (
+    <div className="productos-container">
+      <div className="productos-header">
+        <h1>🛍️ Gestión de Productos</h1>
+        <button className="btn-primary" onClick={() => setShowModal(true)}>
+          + Nuevo Producto
+        </button>
+      </div>
+
+      <div className="productos-grid">
+        {productos.map((producto) => (
+          <div key={producto.id_producto} className="producto-card">
+            <h3>{producto.nombre}</h3>
+            <p className="descripcion">{producto.descripcion}</p>
+            <p className="precio">${parseFloat(producto.precio).toFixed(2)}</p>
+            <p className="categoria">{producto.categoria}</p>
+            <p className="marca">{producto.marca}</p>
+            <div className="card-actions">
+              <button className="btn-edit" onClick={() => handleEdit(producto)}>
+                ✏️ Editar
+              </button>
+              <button className="btn-delete" onClick={() => handleDelete(producto.id_producto)}>
+                🗑️ Eliminar
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {showModal && (
+        <div className="modal-overlay" onClick={() => { setShowModal(false); resetForm(); }}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2>{editingId ? 'Editar Producto' : 'Nuevo Producto'}</h2>
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label>Nombre *</label>
+                <input
+                  type="text"
+                  value={formData.nombre}
+                  onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Descripción</label>
+                <textarea
+                  value={formData.descripcion}
+                  onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
+                />
+              </div>
+              <div className="form-group">
+                <label>Precio *</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={formData.precio}
+                  onChange={(e) => setFormData({ ...formData, precio: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Categoría</label>
+                <input
+                  type="text"
+                  value={formData.categoria}
+                  onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
+                />
+              </div>
+              <div className="form-group">
+                <label>Marca</label>
+                <input
+                  type="text"
+                  value={formData.marca}
+                  onChange={(e) => setFormData({ ...formData, marca: e.target.value })}
+                />
+              </div>
+              <div className="modal-actions">
+                <button type="submit" className="btn-primary">Guardar</button>
+                <button type="button" className="btn-secondary" onClick={() => { setShowModal(false); resetForm(); }}>
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Productos;

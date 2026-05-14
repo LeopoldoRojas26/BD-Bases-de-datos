@@ -1,0 +1,56 @@
+﻿const pool = require('../config/database');
+
+const proveedoresController = {
+  // LISTAR todos los proveedores activos
+  obtenerTodos: async (req, res) => {
+    try {
+      const result = await pool.query(`
+        SELECT * FROM proveedor
+        WHERE estado = 'activo'
+        ORDER BY nombre_proveedor
+      `);
+
+      res.json({
+        success: true,
+        data: result.rows,
+        count: result.rowCount
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  },
+
+  // OBTENER un proveedor por ID
+  obtenerPorId: async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const result = await pool.query(
+        'SELECT * FROM proveedor WHERE id_proveedor = $1',
+        [id]
+      );
+
+      if (result.rowCount === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'Proveedor no encontrado'
+        });
+      }
+
+      res.json({
+        success: true,
+        data: result.rows[0]
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  }
+};
+
+module.exports = proveedoresController;

@@ -1,0 +1,143 @@
+﻿# Sistema CRUD con PostgreSQL - Sprint 4
+
+Sistema de ventas con operaciones CRUD, triggers automáticos y control de stock.
+
+## 🚀 Características
+
+- ✅ Backend con Node.js + Express
+- ✅ Conexión real a PostgreSQL
+- ✅ CRUD completo (Productos, Ventas)
+- ✅ 2 Triggers PL/pgSQL:
+  - **Trigger 1**: Al insertar venta → descuenta stock automáticamente
+  - **Trigger 2**: Valida stock disponible (RAISE EXCEPTION si stock < 0)
+
+## 📋 Requisitos Previos
+
+- Node.js (v14 o superior)
+- PostgreSQL (v12 o superior)
+- npm
+
+## 🔧 Instalación
+
+1. **Clonar/Copiar el proyecto**
+
+2. **Instalar dependencias**:
+```bash
+npm install
+```
+
+3. **Configurar variables de entorno**:
+```bash
+cp .env.example .env
+```
+Edita `.env` con tus credenciales de PostgreSQL
+
+4. **Inicializar la base de datos** (crea tablas y triggers):
+```bash
+npm run init-db
+```
+
+5. **Iniciar el servidor**:
+```bash
+npm start
+```
+O en modo desarrollo:
+```bash
+npm run dev
+```
+
+## 🗄️ Base de Datos
+
+### Tablas:
+- **productos**: id, nombre, precio, stock
+- **ventas**: id, producto_id, cantidad, total, fecha
+- **auditoria_stock**: registra cambios de stock
+
+### Triggers:
+1. **trigger_descontar_stock**: Descuenta stock al insertar venta
+2. **trigger_validar_stock**: Valida que haya stock suficiente (lanza excepción si no hay)
+
+## 📡 API Endpoints
+
+### Productos
+
+- **GET** `/api/productos` - Listar todos los productos
+- **GET** `/api/productos/:id` - Obtener un producto
+- **POST** `/api/productos` - Crear producto
+  ```json
+  {
+    "nombre": "Laptop",
+    "precio": 1200.00,
+    "stock": 10
+  }
+  ```
+- **PUT** `/api/productos/:id` - Actualizar producto
+- **DELETE** `/api/productos/:id` - Eliminar producto
+
+### Ventas
+
+- **GET** `/api/ventas` - Listar todas las ventas
+- **GET** `/api/ventas/:id` - Obtener una venta
+- **POST** `/api/ventas` - Crear venta (dispara triggers)
+  ```json
+  {
+    "producto_id": 1,
+    "cantidad": 2
+  }
+  ```
+- **DELETE** `/api/ventas/:id` - Eliminar venta
+
+### Auditoría
+
+- **GET** `/api/auditoria` - Ver historial de cambios de stock
+
+## 🧪 Pruebas con cURL
+
+```bash
+# Crear producto
+curl -X POST http://localhost:3000/api/productos \
+  -H "Content-Type: application/json" \
+  -d '{"nombre":"Mouse","precio":25.50,"stock":50}'
+
+# Listar productos
+curl http://localhost:3000/api/productos
+
+# Crear venta (descuenta stock automáticamente)
+curl -X POST http://localhost:3000/api/ventas \
+  -H "Content-Type: application/json" \
+  -d '{"producto_id":1,"cantidad":2}'
+
+# Intentar venta sin stock (debe fallar con excepción)
+curl -X POST http://localhost:3000/api/ventas \
+  -H "Content-Type: application/json" \
+  -d '{"producto_id":1,"cantidad":999}'
+```
+
+## 🎯 Cumplimiento de Requisitos
+
+- ✅ **Conexión Backend–DB**: Node.js conecta a PostgreSQL
+- ✅ **CRUD**: Todas las operaciones implementadas
+- ✅ **Triggers**: 2 triggers en PL/pgSQL funcionando
+- ✅ **Validación**: RAISE EXCEPTION cuando stock < 0
+
+## 📁 Estructura del Proyecto
+
+```
+├── src/
+│   ├── index.js              # Servidor principal
+│   ├── config/
+│   │   └── database.js       # Configuración de conexión
+│   ├── database/
+│   │   └── init.js           # Script de inicialización
+│   ├── routes/
+│   │   ├── productos.js      # Rutas de productos
+│   │   ├── ventas.js         # Rutas de ventas
+│   │   └── auditoria.js      # Rutas de auditoría
+│   └── controllers/
+│       ├── productosController.js
+│       ├── ventasController.js
+│       └── auditoriaController.js
+├── package.json
+├── .env
+└── README.md
+```

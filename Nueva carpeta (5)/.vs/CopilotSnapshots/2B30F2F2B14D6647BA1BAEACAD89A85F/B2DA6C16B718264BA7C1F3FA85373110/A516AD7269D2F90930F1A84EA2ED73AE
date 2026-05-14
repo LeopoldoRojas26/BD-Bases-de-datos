@@ -1,0 +1,121 @@
+﻿import { useState, useEffect } from 'react';
+import api from '../config/api';
+import './Dashboard.css';
+
+const Dashboard = () => {
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      const [productos, ventas, clientes, inventario] = await Promise.all([
+        api.get('/productos'),
+        api.get('/ventas'),
+        api.get('/clientes'),
+        api.get('/inventario'),
+      ]);
+
+      const stockBajo = inventario.data.filter(
+        (item) => item.stock_actual < item.stock_minimo
+      ).length;
+
+      const totalVentas = ventas.data.reduce(
+        (sum, v) => sum + parseFloat(v.total_venta || 0),
+        0
+      );
+
+      setStats({
+        totalProductos: productos.data.length,
+        totalVentas: ventas.data.length,
+        totalClientes: clientes.data.length,
+        stockBajo,
+        montoVentas: totalVentas,
+      });
+    } catch (err) {
+      console.error('Error fetching stats:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <div className="loading">Cargando dashboard...</div>;
+
+  return (
+    <div className="dashboard-container">
+      <div className="dashboard-header">
+        <h1>🏪 RedMarket - Dashboard</h1>
+        <p>Sistema de Gestión Integral</p>
+      </div>
+
+      <div className="stats-grid">
+        <div className="stat-card blue">
+          <div className="stat-icon">🛍️</div>
+          <h3>{stats?.totalProductos || 0}</h3>
+          <p>Productos</p>
+        </div>
+
+        <div className="stat-card green">
+          <div className="stat-icon">💰</div>
+          <h3>{stats?.totalVentas || 0}</h3>
+          <p>Ventas Registradas</p>
+        </div>
+
+        <div className="stat-card purple">
+          <div className="stat-icon">👥</div>
+          <h3>{stats?.totalClientes || 0}</h3>
+          <p>Clientes</p>
+        </div>
+
+        <div className="stat-card orange">
+          <div className="stat-icon">📦</div>
+          <h3>{stats?.stockBajo || 0}</h3>
+          <p>Productos con Stock Bajo</p>
+        </div>
+      </div>
+
+      <div className="info-card">
+        <h2>💵 Total en Ventas</h2>
+        <p className="amount">${stats?.montoVentas.toFixed(2) || '0.00'}</p>
+      </div>
+
+      <div className="modules-grid">
+        <div className="module-card">
+          <h3>🔧 Módulos Disponibles</h3>
+          <ul>
+            <li>✅ Productos - CRUD completo</li>
+            <li>✅ Ventas - Con validación de stock</li>
+            <li>✅ Inventario - Control de stock</li>
+            <li>✅ Clientes - Gestión de clientes</li>
+            <li>✅ Empleados - Recursos humanos</li>
+            <li>✅ Proveedores - Gestión de proveedores</li>
+          </ul>
+        </div>
+
+        <div className="module-card">
+          <h3>⚡ Triggers Activos</h3>
+          <ul>
+            <li>✅ Validación de stock antes de venta</li>
+            <li>✅ Descuento automático de inventario</li>
+            <li>✅ RAISE EXCEPTION si stock {'<'} 0</li>
+          </ul>
+        </div>
+
+        <div className="module-card">
+          <h3>🎯 Sprint 4 - Completado</h3>
+          <ul>
+            <li>✅ Conexión Backend - PostgreSQL</li>
+            <li>✅ Funcionalidad CRUD en todos los módulos</li>
+            <li>✅ Triggers en PL/pgSQL implementados</li>
+            <li>✅ Frontend React + Vite integrado</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;

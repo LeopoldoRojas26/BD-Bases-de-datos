@@ -1,0 +1,138 @@
+.inventario-container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.inventario-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.inventario-header h1 {
+  color: #333;
+  font-size: 2rem;
+}
+
+.filter-buttons button {
+  background: white;
+  border: 2px solid #3498db;
+  color: #3498db;
+  padding: 0.5rem 1rem;
+  margin-left: 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.filter-buttons button.active,
+.filter-buttons button:hover {
+  background: #3498db;
+  color: white;
+}
+
+.inventario-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  border-left: 4px solid #3498db;
+}
+
+.stat-card.warning {
+  border-left-color: #f39c12;
+}
+
+.stat-card.danger {
+  border-left-color: #e74c3c;
+}
+
+.stat-card h3 {
+  font-size: 2.5rem;
+  margin: 0;
+  color: #2c3e50;
+}
+
+.stat-card p {
+  color: #7f8c8d;
+  margin: 0.5rem 0 0;
+  font-size: 0.95rem;
+}
+
+.inventario-table table {
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.inventario-table thead {
+  background: #34495e;
+  color: white;
+}
+
+.inventario-table th,
+.inventario-table td {
+  padding: 1rem;
+  text-align: left;
+}
+
+.inventario-table tbody tr {
+  border-bottom: 1px solid #ecf0f1;
+}
+
+.inventario-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.inventario-table .stock-actual {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.inventario-table tr.sin-stock .stock-actual {
+  color: #e74c3c;
+}
+
+.inventario-table tr.stock-bajo .stock-actual {
+  color: #f39c12;
+}
+
+.inventario-table tr.stock-ok .stock-actual {
+  color: #27ae60;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.badge.sin-stock {
+  background: #e74c3c;
+  color: white;
+}
+
+.badge.stock-bajo {
+  background: #f39c12;
+  color: white;
+}
+
+.badge.stock-ok {
+  background: #27ae60;
+  color: white;
+}

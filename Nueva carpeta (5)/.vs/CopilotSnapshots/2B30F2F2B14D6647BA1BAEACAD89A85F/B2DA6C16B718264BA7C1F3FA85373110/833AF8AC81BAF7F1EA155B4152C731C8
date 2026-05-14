@@ -1,0 +1,53 @@
+﻿const { Pool } = require('pg');
+require('dotenv').config();
+
+// Configuración para Aiven o PostgreSQL local
+const poolConfig = {
+  host: process.env.DB_HOST || 'localhost',
+  port: process.env.DB_PORT || 5432,
+  user: process.env.DB_USER || 'postgres',
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME || 'redmarket_db',
+};
+
+// Si es Aiven (host remoto), agregar SSL
+if (process.env.DB_HOST && !process.env.DB_HOST.includes('localhost')) {
+  poolConfig.ssl = {
+    rejectUnauthorized: false // Para Aiven y otros servicios cloud
+  };
+}
+
+// Si se proporciona una URI completa, usarla en lugar de los parámetros individuales
+if (process.env.DATABASE_URL) {
+  const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false
+    }
+  });
+
+  pool.on('connect', () => {
+    console.log('✅ Conectado a PostgreSQL (Aiven/Cloud)');
+  });
+
+  pool.on('error', (err) => {
+    console.error('❌ Error en conexión PostgreSQL:', err);
+    process.exit(-1);
+  });
+
+  module.exports = pool;
+} else {
+  // Conexión con parámetros individuales
+  const pool = new Pool(poolConfig);
+
+  pool.on('connect', () => {
+    console.log('✅ Conectado a PostgreSQL (RedMarket)');
+  });
+
+  pool.on('error', (err) => {
+    console.error('❌ Error en conexión PostgreSQL:', err);
+    process.exit(-1);
+  });
+
+  module.exports = pool;
+}

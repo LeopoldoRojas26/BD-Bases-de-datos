@@ -1,0 +1,90 @@
+.ventas-container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.ventas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.ventas-header h1 {
+  color: #333;
+  font-size: 2rem;
+}
+
+.ventas-list table {
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ventas-list thead {
+  background: #3498db;
+  color: white;
+}
+
+.ventas-list th,
+.ventas-list td {
+  padding: 1rem;
+  text-align: left;
+}
+
+.ventas-list tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.ventas-list .total {
+  color: #27ae60;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.modal-large {
+  max-width: 800px;
+}
+
+.detalle-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto;
+  gap: 1rem;
+  align-items: end;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.btn-remove {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  height: fit-content;
+}
+
+.btn-remove:disabled {
+  background: #bdc3c7;
+  cursor: not-allowed;
+}
+
+.total-section {
+  background: #ecf0f1;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin: 1.5rem 0;
+  text-align: right;
+}
+
+.total-section h3 {
+  color: #27ae60;
+  margin: 0;
+  font-size: 1.8rem;
+}

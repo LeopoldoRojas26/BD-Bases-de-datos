@@ -1,0 +1,30 @@
+﻿# ============================================
+# CONFIGURACIÓN DE BASE DE DATOS
+# ============================================
+
+# OPCIÓN 1: PostgreSQL Local
+# Descomenta estas líneas si usas PostgreSQL en tu computadora
+#DB_HOST=localhost
+#DB_PORT=5432
+#DB_USER=postgres
+#DB_PASSWORD=tu_password_aqui
+#DB_NAME=redmarket_db
+
+# OPCIÓN 2: Aiven (Base de Datos en la Nube)
+# Usa SOLO UNA de estas dos formas:
+
+# Forma A: URI completa (RECOMENDADO para Aiven)
+# Copia la URI de conexión desde el panel de Aiven
+DATABASE_URL=postgres://usuario:password@host-aiven.com:puerto/database?sslmode=require
+
+# Forma B: Parámetros individuales
+# DB_HOST=tu-proyecto-nombre.aivencloud.com
+# DB_PORT=12345
+# DB_USER=avnadmin
+# DB_PASSWORD=tu_password_de_aiven
+# DB_NAME=defaultdb
+
+# ============================================
+# SERVIDOR
+# ============================================
+PORT=3000

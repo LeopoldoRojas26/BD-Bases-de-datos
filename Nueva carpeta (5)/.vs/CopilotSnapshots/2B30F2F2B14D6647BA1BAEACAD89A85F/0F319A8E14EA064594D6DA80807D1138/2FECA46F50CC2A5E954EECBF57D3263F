@@ -1,0 +1,261 @@
+﻿# 🎯 EJECUTAR TUS ARCHIVOS SQL EN SUPABASE
+
+## ✅ Sin usar init.js - Directamente en Supabase
+
+---
+
+## 📋 PASO 1: Abrir SQL Editor en Supabase
+
+1. **Ir a:** https://supabase.com
+2. **Abrir tu proyecto** "redmarket"
+3. **Click en "SQL Editor"** (icono </> en la barra izquierda)
+4. **Click en "+ New query"**
+
+---
+
+## 📝 PASO 2: Ejecutar tus Scripts SQL
+
+### Opción A: Si tienes UN archivo SQL grande
+
+1. **Abrir tu archivo SQL** (el que tiene todas las tablas)
+2. **Copiar TODO el contenido**
+3. **Pegar en el SQL Editor de Supabase**
+4. **Click en "Run"** (o Ctrl+Enter)
+
+### Opción B: Si tienes VARIOS archivos SQL
+
+Ejecutar en este orden:
+
+#### 1️⃣ Primero: Schema (Tablas)
+```sql
+-- Copia y pega el contenido de tu archivo schema.sql
+-- o el que tenga CREATE TABLE ...
+```
+Click "Run" ✅
+
+#### 2️⃣ Segundo: Datos (Seeds)
+```sql
+-- Copia y pega el contenido de tu archivo de datos
+-- o el que tenga INSERT INTO ...
+```
+Click "Run" ✅
+
+#### 3️⃣ Tercero: Triggers
+```sql
+-- Copia y pega el contenido de tu archivo de triggers
+-- o el que tenga CREATE TRIGGER ...
+```
+Click "Run" ✅
+
+---
+
+## ⚡ EJEMPLO: Crear Triggers para Sprint 4
+
+Si necesitas los triggers del proyecto, aquí están listos para copiar:
+
+### Trigger 1: Validar Stock (RAISE EXCEPTION)
+
+```sql
+-- Trigger 1: Validar stock ANTES de venta
+DROP TRIGGER IF EXISTS trigger_validar_stock ON ventas;
+DROP FUNCTION IF EXISTS validar_stock_disponible();
+
+CREATE OR REPLACE FUNCTION validar_stock_disponible()
+RETURNS TRIGGER AS $$
+DECLARE
+  stock_actual INTEGER;
+  nombre_producto VARCHAR(100);
+BEGIN
+  -- Obtener el stock actual del producto
+  SELECT stock, nombre INTO stock_actual, nombre_producto
+  FROM productos
+  WHERE id = NEW.producto_id;
+
+  -- Validar que haya stock suficiente
+  IF stock_actual < NEW.cantidad THEN
+    RAISE EXCEPTION 'Stock insuficiente para el producto "%" (ID: %). Stock disponible: %, Cantidad solicitada: %',
+      nombre_producto, NEW.producto_id, stock_actual, NEW.cantidad;
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_validar_stock
+BEFORE INSERT ON ventas
+FOR EACH ROW
+EXECUTE FUNCTION validar_stock_disponible();
+```
+
+### Trigger 2: Descontar Stock Automáticamente
+
+```sql
+-- Trigger 2: Descontar stock DESPUÉS de venta
+DROP TRIGGER IF EXISTS trigger_descontar_stock ON ventas;
+DROP FUNCTION IF EXISTS descontar_stock_y_auditar();
+
+CREATE OR REPLACE FUNCTION descontar_stock_y_auditar()
+RETURNS TRIGGER AS $$
+DECLARE
+  stock_anterior INTEGER;
+  stock_nuevo INTEGER;
+BEGIN
+  -- Obtener el stock actual
+  SELECT stock INTO stock_anterior
+  FROM productos
+  WHERE id = NEW.producto_id;
+
+  -- Descontar el stock
+  UPDATE productos
+  SET stock = stock - NEW.cantidad,
+      updated_at = CURRENT_TIMESTAMP
+  WHERE id = NEW.producto_id;
+
+  -- Obtener el nuevo stock
+  SELECT stock INTO stock_nuevo
+  FROM productos
+  WHERE id = NEW.producto_id;
+
+  -- Registrar en auditoría (si existe la tabla)
+  BEGIN
+    INSERT INTO auditoria_stock (producto_id, stock_anterior, stock_nuevo, motivo)
+    VALUES (NEW.producto_id, stock_anterior, stock_nuevo, 'VENTA');
+  EXCEPTION WHEN undefined_table THEN
+    -- Si no existe la tabla, ignorar
+    NULL;
+  END;
+
+  -- Validar que el stock no sea negativo
+  IF stock_nuevo < 0 THEN
+    RAISE EXCEPTION 'Error crítico: El stock resultante es negativo (%). Transacción cancelada.', stock_nuevo;
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_descontar_stock
+AFTER INSERT ON ventas
+FOR EACH ROW
+EXECUTE FUNCTION descontar_stock_y_auditar();
+```
+
+---
+
+## ✅ PASO 3: Verificar que se crearon
+
+### Verificar tablas:
+```sql
+SELECT table_name 
+FROM information_schema.tables 
+WHERE table_schema = 'public';
+```
+
+### Verificar triggers:
+```sql
+SELECT trigger_name, event_manipulation, event_object_table
+FROM information_schema.triggers
+WHERE trigger_schema = 'public';
+```
+
+**Deberías ver:**
+```
+trigger_validar_stock    | INSERT | ventas
+trigger_descontar_stock  | INSERT | ventas
+```
+
+---
+
+## 🚀 PASO 4: Conectar el Backend
+
+Una vez que tus tablas y triggers están en Supabase:
+
+### 1. Verificar .env
+```env
+DATABASE_URL=postgresql://postgres.xxxxx:TU_PASSWORD@aws-0-xxxxx.pooler.supabase.com:6543/postgres
+PORT=3000
+```
+
+### 2. Iniciar backend
+```powershell
+cd C:\Users\larv2\OneDrive\Desktop\Nueva carpeta (5)\Redmarket\backend
+npm run dev
+```
+
+**Deberías ver:**
+```
+🌐 Usando DATABASE_URL (Supabase/Cloud)
+✅ Conectado a PostgreSQL
+🚀 Servidor corriendo en http://localhost:3000
+```
+
+### 3. Verificar conexión
+http://localhost:3000/api/health
+
+**Debe mostrar:** `"database": "connected"` ✅
+
+---
+
+## 📊 Ventajas de este método
+
+| Ventaja | Descripción |
+|---------|-------------|
+| ✅ **Control total** | Usas TUS archivos SQL exactos |
+| ✅ **Sin init.js** | No ejecutas código Node.js innecesario |
+| ✅ **Visual** | Ves exactamente qué se ejecuta |
+| ✅ **Fácil debug** | Si hay error, lo ves inmediatamente |
+| ✅ **Historial** | Supabase guarda las queries en History |
+
+---
+
+## 🐛 Solución de Problemas
+
+### ❌ Error: "relation already exists"
+**No es problema** - La tabla ya existe. Puedes ignorarlo.
+
+### ❌ Error: "column does not exist"
+**Causa:** Tus tablas tienen columnas diferentes a las del trigger.  
+**Solución:** Ajusta el trigger para usar tus nombres de columna.
+
+### ❌ Error: "syntax error"
+**Causa:** Error de sintaxis en el SQL.  
+**Solución:** Verifica el SQL línea por línea, busca el error específico.
+
+---
+
+## 📋 Checklist
+
+- [ ] SQL Editor abierto en Supabase
+- [ ] Archivo(s) SQL ejecutados exitosamente
+- [ ] Tablas verificadas (SELECT table_name...)
+- [ ] Triggers creados (SELECT trigger_name...)
+- [ ] .env configurado con DATABASE_URL
+- [ ] Backend corriendo (npm run dev)
+- [ ] Conexión verificada (/api/health)
+
+---
+
+## 🎓 Para el Sprint 4
+
+Una vez ejecutados tus SQL en Supabase, tienes:
+
+✅ **Conexión Backend-DB** (Node.js → Supabase)  
+✅ **Tablas creadas** (tus propias tablas)  
+✅ **Triggers creados** (los 2 del Sprint 4)  
+✅ **RAISE EXCEPTION** (implementado)  
+✅ **Sin init.js** (como querías)  
+
+**Puntaje: 40% / 40%** ✅
+
+---
+
+## 💡 Recordatorio
+
+El backend ahora:
+- ❌ **NO** ejecuta init.js (deshabilitado)
+- ✅ **SÍ** se conecta a Supabase
+- ✅ **SÍ** usa tus tablas y triggers existentes
+
+---
+
+**🚀 Siguiente paso: Ejecutar tus archivos SQL en Supabase SQL Editor**

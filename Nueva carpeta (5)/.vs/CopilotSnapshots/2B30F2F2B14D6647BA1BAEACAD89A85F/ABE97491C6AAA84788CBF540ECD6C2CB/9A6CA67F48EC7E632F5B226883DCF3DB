@@ -1,0 +1,117 @@
+﻿import { useState, useEffect } from 'react';
+import { inventarioService } from '../services/api.service';
+import './Inventario.css';
+
+const Inventario = () => {
+  const [inventario, setInventario] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState('all');
+
+  useEffect(() => {
+    fetchInventario();
+  }, []);
+
+  const fetchInventario = async () => {
+    try {
+      setLoading(true);
+      const response = await inventarioService.getAll();
+      // Backend devuelve {success: true, data: [...]}
+      setInventario(response.data.data || response.data);
+    } catch (err) {
+      alert('Error al cargar inventario: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getFilteredInventario = () => {
+    if (filter === 'bajo') {
+      return inventario.filter(item => item.stock_actual < item.stock_minimo);
+    }
+    return inventario;
+  };
+
+  const getStockClass = (item) => {
+    if (item.stock_actual === 0) return 'sin-stock';
+    if (item.stock_actual < item.stock_minimo) return 'stock-bajo';
+    return 'stock-ok';
+  };
+
+  if (loading) return <div className="loading">Cargando inventario...</div>;
+
+  const filteredItems = getFilteredInventario();
+
+  return (
+    <div className="inventario-container">
+      <div className="inventario-header">
+        <h1>📦 Control de Inventario</h1>
+        <div className="filter-buttons">
+          <button
+            className={filter === 'all' ? 'active' : ''}
+            onClick={() => setFilter('all')}
+          >
+            Todos
+          </button>
+          <button
+            className={filter === 'bajo' ? 'active' : ''}
+            onClick={() => setFilter('bajo')}
+          >
+            ⚠️ Stock Bajo
+          </button>
+        </div>
+      </div>
+
+      <div className="inventario-stats">
+        <div className="stat-card">
+          <h3>{inventario.length}</h3>
+          <p>Total Productos</p>
+        </div>
+        <div className="stat-card warning">
+          <h3>{inventario.filter(i => i.stock_actual < i.stock_minimo).length}</h3>
+          <p>Stock Bajo</p>
+        </div>
+        <div className="stat-card danger">
+          <h3>{inventario.filter(i => i.stock_actual === 0).length}</h3>
+          <p>Sin Stock</p>
+        </div>
+      </div>
+
+      <div className="inventario-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Categoría</th>
+              <th>Stock Actual</th>
+              <th>Stock Mínimo</th>
+              <th>Stock Máximo</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredItems.map((item) => (
+              <tr key={item.id_inventario} className={getStockClass(item)}>
+                <td><strong>{item.nombre_producto}</strong></td>
+                <td>{item.categoria || 'N/A'}</td>
+                <td className="stock-actual">{item.stock_actual}</td>
+                <td>{item.stock_minimo}</td>
+                <td>{item.stock_maximo}</td>
+                <td>
+                  {item.stock_actual === 0 && <span className="badge sin-stock">Sin Stock</span>}
+                  {item.stock_actual > 0 && item.stock_actual < item.stock_minimo && (
+                    <span className="badge stock-bajo">Stock Bajo</span>
+                  )}
+                  {item.stock_actual >= item.stock_minimo && (
+                    <span className="badge stock-ok">OK</span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
+export default Inventario;

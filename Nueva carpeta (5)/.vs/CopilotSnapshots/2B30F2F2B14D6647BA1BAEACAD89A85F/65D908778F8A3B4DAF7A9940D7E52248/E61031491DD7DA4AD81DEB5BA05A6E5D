@@ -1,0 +1,288 @@
+﻿# 🚀 Guía de Inicio Rápido - RedMarket
+
+## ⚡ Instrucciones para Ejecutar el Proyecto
+
+### 📋 Prerrequisitos
+- ✅ Node.js 16+ instalado
+- ✅ PostgreSQL (puede ser: DBngin, PostgreSQL instalado, o pgAdmin)
+- ✅ npm
+
+---
+
+## 🔧 Paso 1: Configurar Base de Datos PostgreSQL
+
+### 🎯 Opción A: DBngin (Recomendado - Más fácil)
+**Si usas DBngin para gestionar PostgreSQL:**
+
+1. **Abrir DBngin** y asegurarte que PostgreSQL esté corriendo (botón verde)
+
+2. **Crear la base de datos:**
+   - Click derecho en PostgreSQL → "Open Terminal"
+   - Ejecutar:
+   ```bash
+   createdb redmarket_db
+   ```
+
+3. **Verificar la conexión:**
+   - Click derecho en PostgreSQL → "Show Info"
+   - Anotar: Usuario, Puerto (usualmente 5432)
+
+**📖 Guía detallada:** Ver [CONFIGURACION_DBNGIN.md](CONFIGURACION_DBNGIN.md)
+
+### Opción B: PostgreSQL con Terminal
+```sql
+-- Conectarse a PostgreSQL
+psql -U postgres
+
+-- Crear base de datos
+CREATE DATABASE redmarket_db;
+
+-- Salir
+\q
+```
+
+### Opción C: pgAdmin
+1. Abrir pgAdmin
+2. Click derecho en "Databases" → "Create" → "Database"
+3. Nombre: `redmarket_db`
+4. Click "Save"
+
+---
+
+## 🔥 Paso 2: Configurar y Ejecutar Backend
+
+```bash
+# 1. Ir al directorio del backend
+cd Redmarket/backend
+
+# 2. Instalar dependencias
+npm install
+
+# 3. Copiar archivo de configuración
+copy .env.example .env
+# En Mac/Linux: cp .env.example .env
+
+# 4. Editar .env con tus credenciales de PostgreSQL
+# 
+# Si usas DBngin:
+#   DB_HOST=localhost
+#   DB_PORT=5432
+#   DB_USER=TU_NOMBRE_USUARIO    ← Tu usuario del sistema
+#   DB_PASSWORD=                   ← Dejar vacío
+#   DB_NAME=redmarket_db
+#   PORT=3000
+#
+# Si usas PostgreSQL normal:
+#   DB_HOST=localhost
+#   DB_PORT=5432
+#   DB_USER=postgres
+#   DB_PASSWORD=TU_PASSWORD
+#   DB_NAME=redmarket_db
+#   PORT=3000
+
+# 5. Inicializar base de datos (crea tablas, datos y triggers)
+npm run init-db
+
+# 6. Iniciar servidor backend
+npm run dev
+```
+
+✅ **Backend corriendo en:** `http://localhost:3000`
+
+Verifica que funciona abriendo: `http://localhost:3000/api/health`
+
+---
+
+## 🎨 Paso 3: Configurar y Ejecutar Frontend
+
+**ABRIR NUEVA TERMINAL** (dejar el backend corriendo)
+
+```bash
+# 1. Ir al directorio del frontend
+cd Redmarket/frontend
+
+# 2. Instalar dependencias
+npm install
+
+# 3. Iniciar servidor de desarrollo
+npm run dev
+```
+
+✅ **Frontend corriendo en:** `http://localhost:5173`
+
+Abre tu navegador en `http://localhost:5173` y verás la aplicación funcionando.
+
+---
+
+## 🎯 ¿Qué hace cada paso?
+
+### `npm run init-db` (Backend)
+Ejecuta automáticamente:
+- ✅ Crea todas las tablas de la base de datos
+- ✅ Inserta datos de prueba (productos, clientes, empleados, etc.)
+- ✅ Crea vistas SQL
+- ✅ **Crea los 2 triggers de PL/pgSQL** (Sprint 4)
+
+### `npm run dev` (Backend)
+- Inicia el servidor Express en el puerto 3000
+- Habilita hot-reload (nodemon)
+- Expone los endpoints de la API REST
+
+### `npm run dev` (Frontend)
+- Inicia el servidor de desarrollo Vite
+- Habilita Hot Module Replacement (HMR)
+- Abre la aplicación React en el navegador
+
+---
+
+## 🧪 Probar la Aplicación
+
+1. **Ver Dashboard**: `http://localhost:5173/`
+2. **Gestionar Productos**: Clic en "Productos" → Agregar/Editar/Eliminar
+3. **Crear Venta**: Clic en "Ventas" → Nueva Venta
+   - **IMPORTANTE**: Esto activará los triggers de validación de stock
+4. **Ver Inventario**: Clic en "Inventario" → Ver productos con stock bajo
+
+---
+
+## 🐛 Solución de Problemas
+
+### ❌ Error: "connect ECONNREFUSED" o "password authentication failed"
+**Causa**: PostgreSQL no está corriendo, credenciales incorrectas, o puerto incorrecto
+
+**Solución para DBngin:**
+1. Verificar que PostgreSQL esté **iniciado** en DBngin (botón verde)
+2. Click derecho en PostgreSQL → "Show Info" para ver:
+   - Usuario (usualmente tu nombre del sistema)
+   - Puerto (usualmente 5432)
+3. Actualizar `backend/.env` con esos datos
+4. **Importante**: En DBngin la contraseña suele estar vacía: `DB_PASSWORD=`
+
+**Solución para PostgreSQL normal:**
+1. Verificar que PostgreSQL esté corriendo:
+   ```bash
+   # Windows
+   services.msc  # Buscar "postgresql" y verificar que esté iniciado
+
+   # Mac
+   brew services list  # Ver si postgresql está running
+   ```
+2. Revisar credenciales en `backend/.env`
+
+### ❌ Error: "database does not exist"
+**Causa**: La base de datos `redmarket_db` no fue creada
+
+**Solución con DBngin:**
+```bash
+# Click derecho en PostgreSQL → "Open Terminal"
+createdb redmarket_db
+```
+
+**Solución con psql:**
+```bash
+psql -U postgres
+CREATE DATABASE redmarket_db;
+\q
+```
+
+### ❌ Error al ejecutar `npm run init-db`
+**Causa**: No hay conexión a la base de datos
+
+**Solución:**
+1. Verificar que PostgreSQL esté corriendo
+2. Verificar que `redmarket_db` exista
+3. Verificar credenciales en `backend/.env`
+4. Probar conexión manual:
+   ```bash
+   # DBngin
+   # Click derecho → Connect
+
+   # Terminal
+   psql -U TU_USUARIO -d redmarket_db
+   ```
+
+### ❌ Error: "Port 3000 already in use"
+**Causa**: El puerto 3000 está ocupado por otra aplicación
+
+**Solución:**
+1. Cambiar `PORT=3001` en `backend/.env`
+2. O cerrar la aplicación que usa el puerto 3000
+
+### ❌ Frontend no se conecta al backend
+**Causa**: Backend no está corriendo o puerto incorrecto
+
+**Solución:**
+1. Verificar que `npm run dev` esté corriendo en `backend/`
+2. Verificar que veas: "✅ Conectado a PostgreSQL"
+3. Probar: `http://localhost:3000/api/health`
+4. Si cambiate el puerto del backend, actualiza `frontend/.env`:
+   ```env
+   VITE_API_URL=http://localhost:3001/api
+   ```
+
+### ❌ Error: "role does not exist" (DBngin)
+**Causa**: El usuario no existe en PostgreSQL
+
+**Solución:**
+```bash
+# Click derecho en PostgreSQL → Connect
+CREATE USER tu_usuario WITH PASSWORD '';
+GRANT ALL PRIVILEGES ON DATABASE redmarket_db TO tu_usuario;
+```
+
+---
+
+## 📦 Estructura de Comandos
+
+### Backend Commands
+```bash
+npm start        # Producción
+npm run dev      # Desarrollo con nodemon
+npm run init-db  # Inicializar/resetear base de datos
+```
+
+### Frontend Commands
+```bash
+npm run dev      # Desarrollo con HMR
+npm run build    # Build para producción
+npm run preview  # Preview del build
+```
+
+---
+
+## ✅ Checklist de Verificación
+
+- [ ] PostgreSQL está instalado y corriendo
+- [ ] Base de datos `redmarket_db` creada
+- [ ] Archivo `backend/.env` configurado con credenciales correctas
+- [ ] `npm run init-db` ejecutado exitosamente
+- [ ] Backend corriendo en `http://localhost:3000`
+- [ ] Frontend corriendo en `http://localhost:5173`
+- [ ] Puedes crear productos
+- [ ] Puedes crear ventas (triggers funcionando)
+- [ ] Inventario se actualiza automáticamente
+
+---
+
+## 🎓 Sprint 4 - Entregables Verificados
+
+| Requisito | Estado | Verificación |
+|-----------|--------|--------------|
+| Conexión Backend-DB | ✅ | Ir a `/api/health` |
+| CRUD Completo | ✅ | Probar módulos de Productos, Ventas, Clientes |
+| Trigger 1: Validación Stock | ✅ | Intentar vender más de lo disponible |
+| Trigger 2: Descuento Stock | ✅ | Ver inventario después de venta |
+| RAISE EXCEPTION | ✅ | Error si stock < cantidad |
+
+---
+
+## 📞 Ayuda Adicional
+
+Si tienes problemas, verifica:
+1. Logs del backend (terminal donde corre `npm run dev`)
+2. Consola del navegador (F12 → Console)
+3. Estado de PostgreSQL: `psql -U postgres -c "SELECT version();"`
+
+---
+
+**🎉 ¡Listo! Tu sistema RedMarket está funcionando con React + Vite + Node.js + PostgreSQL**

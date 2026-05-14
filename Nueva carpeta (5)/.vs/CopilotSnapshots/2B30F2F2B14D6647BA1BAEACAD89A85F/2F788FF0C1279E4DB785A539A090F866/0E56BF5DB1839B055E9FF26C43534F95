@@ -1,0 +1,228 @@
+﻿import { useState, useEffect } from 'react';
+import { ventasService, clientesService, productosService } from '../services/api.service';
+import './Ventas.css';
+
+const Ventas = () => {
+  const [ventas, setVentas] = useState([]);
+  const [clientes, setClientes] = useState([]);
+  const [productos, setProductos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({
+    id_cliente: '',
+    detalles: [{ id_producto: '', cantidad: 1, precio_unitario: 0 }],
+  });
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [ventasRes, clientesRes, productosRes] = await Promise.all([
+        ventasService.getAll(),
+        clientesService.getAll(),
+        productosService.getAll(),
+      ]);
+      // Backend devuelve {success: true, data: [...]}
+      setVentas(ventasRes.data.data || ventasRes.data);
+      setClientes(clientesRes.data.data || clientesRes.data);
+      setProductos(productosRes.data.data || productosRes.data);
+    } catch (err) {
+      alert('Error al cargar datos: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const ventaData = {
+        id_cliente: parseInt(formData.id_cliente),
+        id_empleado: 1,
+        detalles: formData.detalles.map(d => ({
+          id_producto: parseInt(d.id_producto),
+          cantidad: parseInt(d.cantidad),
+          precio_unitario: parseFloat(d.precio_unitario),
+        })),
+      };
+      await ventasService.create(ventaData);
+      fetchData();
+      resetForm();
+      setShowModal(false);
+      alert('✅ Venta registrada exitosamente');
+    } catch (err) {
+      const errorMsg = err.response?.data?.error || err.message;
+      alert('❌ Error al registrar venta: ' + errorMsg);
+    }
+  };
+
+  const addDetalle = () => {
+    setFormData({
+      ...formData,
+      detalles: [...formData.detalles, { id_producto: '', cantidad: 1, precio_unitario: 0 }],
+    });
+  };
+
+  const removeDetalle = (index) => {
+    const newDetalles = formData.detalles.filter((_, i) => i !== index);
+    setFormData({ ...formData, detalles: newDetalles });
+  };
+
+  const updateDetalle = (index, field, value) => {
+    const newDetalles = [...formData.detalles];
+    newDetalles[index][field] = value;
+    
+    if (field === 'id_producto') {
+      const producto = productos.find(p => p.id_producto === parseInt(value));
+      if (producto) {
+        newDetalles[index].precio_unitario = producto.precio;
+      }
+    }
+    
+    setFormData({ ...formData, detalles: newDetalles });
+  };
+
+  const resetForm = () => {
+    setFormData({
+      id_cliente: '',
+      detalles: [{ id_producto: '', cantidad: 1, precio_unitario: 0 }],
+    });
+  };
+
+  const calcularTotal = () => {
+    return formData.detalles.reduce((sum, d) => {
+      return sum + (parseFloat(d.precio_unitario) * parseInt(d.cantidad || 0));
+    }, 0).toFixed(2);
+  };
+
+  if (loading) return <div className="loading">Cargando ventas...</div>;
+
+  return (
+    <div className="ventas-container">
+      <div className="ventas-header">
+        <h1>💰 Gestión de Ventas</h1>
+        <button className="btn-primary" onClick={() => setShowModal(true)}>
+          + Nueva Venta
+        </button>
+      </div>
+
+      <div className="ventas-list">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Fecha</th>
+              <th>Cliente</th>
+              <th>Empleado</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {ventas.map((venta) => (
+              <tr key={venta.id_venta}>
+                <td>#{venta.id_venta}</td>
+                <td>{new Date(venta.fecha_venta).toLocaleDateString()}</td>
+                <td>{venta.cliente_nombre || 'N/A'}</td>
+                <td>{venta.empleado_nombre || 'N/A'}</td>
+                <td className="total">${parseFloat(venta.total_venta).toFixed(2)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {showModal && (
+        <div className="modal-overlay" onClick={() => { setShowModal(false); resetForm(); }}>
+          <div className="modal-content modal-large" onClick={(e) => e.stopPropagation()}>
+            <h2>Nueva Venta</h2>
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label>Cliente *</label>
+                <select
+                  value={formData.id_cliente}
+                  onChange={(e) => setFormData({ ...formData, id_cliente: e.target.value })}
+                  required
+                >
+                  <option value="">Seleccionar cliente</option>
+                  {clientes.map((c) => (
+                    <option key={c.id_cliente} value={c.id_cliente}>
+                      {c.nombre} {c.apellido}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <h3>Productos</h3>
+              {formData.detalles.map((detalle, index) => (
+                <div key={index} className="detalle-row">
+                  <div className="form-group">
+                    <label>Producto *</label>
+                    <select
+                      value={detalle.id_producto}
+                      onChange={(e) => updateDetalle(index, 'id_producto', e.target.value)}
+                      required
+                    >
+                      <option value="">Seleccionar producto</option>
+                      {productos.map((p) => (
+                        <option key={p.id_producto} value={p.id_producto}>
+                          {p.nombre} - ${p.precio}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>Cantidad *</label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={detalle.cantidad}
+                      onChange={(e) => updateDetalle(index, 'cantidad', e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Precio</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={detalle.precio_unitario}
+                      readOnly
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    className="btn-remove"
+                    onClick={() => removeDetalle(index)}
+                    disabled={formData.detalles.length === 1}
+                  >
+                    🗑️
+                  </button>
+                </div>
+              ))}
+
+              <button type="button" className="btn-secondary" onClick={addDetalle}>
+                + Agregar Producto
+              </button>
+
+              <div className="total-section">
+                <h3>Total: ${calcularTotal()}</h3>
+              </div>
+
+              <div className="modal-actions">
+                <button type="submit" className="btn-primary">Registrar Venta</button>
+                <button type="button" className="btn-secondary" onClick={() => { setShowModal(false); resetForm(); }}>
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Ventas;

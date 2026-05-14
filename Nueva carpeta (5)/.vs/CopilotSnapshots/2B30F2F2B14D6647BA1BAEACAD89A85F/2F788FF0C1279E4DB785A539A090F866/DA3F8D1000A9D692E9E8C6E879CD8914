@@ -1,0 +1,48 @@
+﻿import { useState, useEffect } from 'react';
+import { empleadosService } from '../services/api.service';
+import '../components/Productos.css';
+
+const Empleados = () => {
+  const [empleados, setEmpleados] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchEmpleados();
+  }, []);
+
+  const fetchEmpleados = async () => {
+    try {
+      const response = await empleadosService.getAll();
+      // Backend devuelve {success: true, data: [...]}
+      setEmpleados(response.data.data || response.data);
+    } catch (err) {
+      alert('Error: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <div className="loading">Cargando...</div>;
+
+  return (
+    <div className="productos-container">
+      <div className="productos-header">
+        <h1>👔 Gestión de Empleados</h1>
+      </div>
+
+      <div className="productos-grid">
+        {empleados.map((empleado) => (
+          <div key={empleado.id_empleado} className="producto-card">
+            <h3>{empleado.nombre} {empleado.apellido}</h3>
+            <p>🏢 {empleado.cargo || 'Sin cargo'}</p>
+            <p>📧 {empleado.email || 'Sin email'}</p>
+            <p>📱 {empleado.telefono || 'Sin teléfono'}</p>
+            <p>💰 ${parseFloat(empleado.salario || 0).toFixed(2)}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default Empleados;

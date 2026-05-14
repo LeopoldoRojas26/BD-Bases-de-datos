@@ -1,0 +1,29 @@
+﻿# ============================================
+# CONFIGURACIÓN PARA DBngin / PostgreSQL LOCAL
+# ============================================
+
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=
+DB_NAME=redmarket_db
+
+# 📝 INSTRUCCIONES:
+# 1. Si usas DBngin:
+#    - DB_USER = tu nombre de usuario del sistema (ejemplo: john, maria)
+#    - DB_PASSWORD = dejar vacío (sin nada después del =)
+#    - DB_PORT = verificar en DBngin (usualmente 5432)
+#
+# 2. Si usas PostgreSQL instalado:
+#    - DB_USER = postgres (por defecto)
+#    - DB_PASSWORD = la que configuraste al instalar
+#    - DB_PORT = 5432 (por defecto)
+#
+# 3. Para servicios cloud (Aiven, Railway, etc.):
+#    - Usa DATABASE_URL en lugar de los parámetros individuales
+#    - DATABASE_URL=postgres://user:pass@host:port/database?sslmode=require
+
+# ============================================
+# SERVIDOR
+# ============================================
+PORT=3000
