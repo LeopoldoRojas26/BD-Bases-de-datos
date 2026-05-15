@@ -45,3 +45,19 @@ export const inventarioService = {
   update: (id, data) => api.put(`/inventario/${id}`, data),
   getBajoStock: () => api.get('/inventario/bajo-stock'),
 };
+
+export const metodosPagoService = {
+  getAll: () => api.get('/metodos-pago'),
+  getById: (id) => api.get(`/metodos-pago/${id}`),
+  create: (data) => api.post('/metodos-pago', data),
+  update: (id, data) => api.put(`/metodos-pago/${id}`, data),
+  delete: (id) => api.delete(`/metodos-pago/${id}`),
+};
+
+export const detalleVentaService = {
+  getAll: () => api.get('/detalle-venta'),
+  getById: (id) => api.get(`/detalle-venta/${id}`),
+  create: (data) => api.post('/detalle-venta', data),
+  update: (id, data) => api.put(`/detalle-venta/${id}`, data),
+  delete: (id) => api.delete(`/detalle-venta/${id}`),
+};

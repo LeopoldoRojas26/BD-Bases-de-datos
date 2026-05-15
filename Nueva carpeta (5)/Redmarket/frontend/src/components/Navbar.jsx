@@ -13,40 +13,53 @@ const Navbar = () => {
       <div className="navbar-brand">
         <h2>🏪 RedMarket</h2>
       </div>
+
       <ul className="navbar-menu">
         <li>
           <Link to="/" className={isActive('/')}>
             🏠 Dashboard
           </Link>
         </li>
+
         <li>
           <Link to="/productos" className={isActive('/productos')}>
             🛍️ Productos
           </Link>
         </li>
+
         <li>
           <Link to="/ventas" className={isActive('/ventas')}>
             💰 Ventas
           </Link>
         </li>
+
         <li>
           <Link to="/inventario" className={isActive('/inventario')}>
             📦 Inventario
           </Link>
         </li>
+
         <li>
           <Link to="/clientes" className={isActive('/clientes')}>
             👥 Clientes
           </Link>
         </li>
+
         <li>
           <Link to="/empleados" className={isActive('/empleados')}>
             👔 Empleados
           </Link>
         </li>
+
         <li>
           <Link to="/proveedores" className={isActive('/proveedores')}>
             🚚 Proveedores
+          </Link>
+        </li>
+
+        <li>
+          <Link to="/metodos-pago" className={isActive('/metodos-pago')}>
+            💳 Métodos de pago
           </Link>
         </li>
       </ul>

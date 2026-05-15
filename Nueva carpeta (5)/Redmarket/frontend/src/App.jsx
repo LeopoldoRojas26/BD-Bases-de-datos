@@ -7,6 +7,7 @@ import Inventario from './components/Inventario';
 import Clientes from './components/Clientes';
 import Empleados from './components/Empleados';
 import Proveedores from './components/Proveedores';
+import MetodosPago from "./components/MetodosPago";
 import './App.css';
 
 function App() {
@@ -16,13 +17,14 @@ function App() {
         <Navbar />
         <div className='main-content'>
           <Routes>
-            <Route path='/' element={<Dashboard />} />
+            <Route path='/' element={<Dashboard /> } />
             <Route path='/productos' element={<Productos />} />
             <Route path='/ventas' element={<Ventas />} />
             <Route path='/inventario' element={<Inventario />} />
             <Route path='/clientes' element={<Clientes />} />
             <Route path='/empleados' element={<Empleados />} />
             <Route path='/proveedores' element={<Proveedores />} />
+            <Route path='/metodos-pago' element={<MetodosPago />} />
           </Routes>
         </div>
       </div>
