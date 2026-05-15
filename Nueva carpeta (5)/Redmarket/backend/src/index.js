@@ -14,6 +14,9 @@ const inventarioRoutes = require('./routes/inventario');
 
 const metodosPagoRoutes = require('./routes/metodosPago');
 const detalleVentaRoutes = require('./routes/detalleVenta');
+const pagosRoutes = require('./routes/pagos');
+const facturaRoutes = require('./routes/factura');
+const devolucionRoutes = require('./routes/devolucion');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -45,7 +48,10 @@ app.get('/', (req, res) => {
       inventario: '/api/inventario',
 
       metodos_pago: '/api/metodos-pago',
-       detalle_venta: '/api/detalle-venta'
+       detalle_venta: '/api/detalle-venta',
+       pagos: '/api/pagos',
+       factura: '/api/factura',
+       devolucion: '/api/devolucion',
       
     }
   });
@@ -80,6 +86,9 @@ app.use('/api/inventario', inventarioRoutes);
 
 app.use('/api/metodos-pago', metodosPagoRoutes);
 app.use('/api/detalle-venta', detalleVentaRoutes);
+app.use('/api/pagos', pagosRoutes);
+app.use('/api/factura', facturaRoutes);
+app.use('/api/devolucion', devolucionRoutes);
 
 // Manejo de errores 404
 app.use((req, res) => {
@@ -114,6 +123,9 @@ app.listen(PORT, () => {
 
   console.log(`   - Métodos pago: http://localhost:${PORT}/api/metodos-pago`);
   console.log(`   - Detalle venta: http://localhost:${PORT}/api/detalle-venta\n`);
+  console.log(`   - Pagos: http://localhost:${PORT}/api/pagos\n`);
+  console.log(`   - factura: http://localhost:${PORT}/api/factura\n`);
+  console.log(`   - devolucion: http://localhost:${PORT}/api/devolucion\n`);
 });
 
 // Manejo de cierre graceful
