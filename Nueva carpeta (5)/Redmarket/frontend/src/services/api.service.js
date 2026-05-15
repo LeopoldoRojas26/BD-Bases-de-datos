@@ -61,3 +61,27 @@ export const detalleVentaService = {
   update: (id, data) => api.put(`/detalle-venta/${id}`, data),
   delete: (id) => api.delete(`/detalle-venta/${id}`),
 };
+
+export const pagosService = {
+  getAll: () => api.get('/pagos'),
+  getById: (id) => api.get(`/pagos/${id}`),
+  create: (data) => api.post('/pagos', data),
+  update: (id, data) => api.put(`/pagos/${id}`, data),
+  delete: (id) => api.delete(`/pagos/${id}`),
+};
+
+export const facturaService = {
+  getAll: () => api.get('/factura'),
+  getById: (id) => api.get(`/factura/${id}`),
+  create: (data) => api.post('/factura', data),
+  update: (id, data) => api.put(`/factura/${id}`, data),
+  delete: (id) => api.delete(`/factura/${id}`),
+};
+
+export const devolucionService = {
+  getAll: () => api.get('/devolucion'),
+  getById: (id) => api.get(`/devolucion/${id}`),
+  create: (data) => api.post('/devolucion', data),
+  update: (id, data) => api.put(`/devolucion/${id}`, data),
+  delete: (id) => api.delete(`/devolucion/${id}`),
+};
