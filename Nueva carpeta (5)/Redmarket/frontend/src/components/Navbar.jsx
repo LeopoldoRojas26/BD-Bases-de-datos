@@ -11,55 +11,49 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <div className="navbar-brand">
-        <h2>🏪 RedMarket</h2>
+        <h2>🏪 RedMarket ERP</h2>
       </div>
 
       <ul className="navbar-menu">
         <li>
           <Link to="/" className={isActive('/')}>
-            🏠 Dashboard
-          </Link>
-        </li>
-
-        <li>
-          <Link to="/productos" className={isActive('/productos')}>
-            🛍️ Productos
+            📊 Dashboard
           </Link>
         </li>
 
         <li>
           <Link to="/ventas" className={isActive('/ventas')}>
-            💰 Ventas
+            🛒 Ventas
           </Link>
         </li>
 
         <li>
-          <Link to="/inventario" className={isActive('/inventario')}>
-            📦 Inventario
+          <Link to="/inventarios" className={isActive('/inventarios')}>
+            📦 Inventarios
           </Link>
         </li>
 
         <li>
-          <Link to="/clientes" className={isActive('/clientes')}>
-            👥 Clientes
+          <Link to="/compras" className={isActive('/compras')}>
+            🚚 Compras
           </Link>
         </li>
 
         <li>
-          <Link to="/empleados" className={isActive('/empleados')}>
-            👔 Empleados
+          <Link to="/sucursales" className={isActive('/sucursales')}>
+            🏢 Sucursales
           </Link>
         </li>
 
         <li>
-          <Link to="/proveedores" className={isActive('/proveedores')}>
-            🚚 Proveedores
+          <Link to="/rrhh" className={isActive('/rrhh')}>
+            👨‍💼 RRHH
           </Link>
         </li>
 
         <li>
-          <Link to="/metodos-pago" className={isActive('/metodos-pago')}>
-            💳 Métodos de pago
+          <Link to="/admin" className={isActive('/admin')}>
+            🔐 Administración
           </Link>
         </li>
       </ul>

@@ -11,9 +11,12 @@ const empleadosRoutes = require('./routes/empleados');
 const clientesRoutes = require('./routes/clientes');
 const proveedoresRoutes = require('./routes/proveedores');
 const inventarioRoutes = require('./routes/inventario');
-
 const metodosPagoRoutes = require('./routes/metodosPago');
 const detalleVentaRoutes = require('./routes/detalleVenta');
+const pagosRoutes = require('./routes/pagos');
+const facturaRoutes = require('./routes/factura');
+const devolucionRoutes = require('./routes/devolucion');
+const sucursalesRoutes = require('./routes/sucursales');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,16 +29,8 @@ app.use(express.urlencoded({ extended: true }));
 // Ruta raíz
 app.get('/', (req, res) => {
   res.json({
-    message: '🛒 RedMarket API - Sistema de Gestión Integral',
+    message: 'RedMarket API - Sistema de Gestión Integral',
     version: '1.0.0',
-    modules: {
-      rrhh: 'Recursos Humanos',
-      sucursales: 'Gestión de Sucursales y Almacenes',
-      inventario: 'Control de Stock y Productos',
-      compras: 'Órdenes de Compra y Proveedores',
-      ventas: 'Ventas, Clientes y Facturación',
-      administrativo: 'Usuarios, Roles y Auditoría'
-    },
     endpoints: {
       productos: '/api/productos',
       ventas: '/api/ventas',
@@ -43,10 +38,12 @@ app.get('/', (req, res) => {
       clientes: '/api/clientes',
       proveedores: '/api/proveedores',
       inventario: '/api/inventario',
-
       metodos_pago: '/api/metodos-pago',
-       detalle_venta: '/api/detalle-venta'
-      
+      detalle_venta: '/api/detalle-venta',
+      pagos: '/api/pagos',
+      factura: '/api/factura',
+      devolucion: '/api/devolucion',
+      sucursales: '/api/sucursales'
     }
   });
 });
@@ -57,14 +54,14 @@ app.get('/api/health', async (req, res) => {
     const result = await pool.query('SELECT NOW(), version()');
     res.json({
       status: 'OK',
-      database: 'Conectado ✅',
+      database: 'Conectado',
       timestamp: result.rows[0].now,
       pg_version: result.rows[0].version
     });
   } catch (error) {
     res.status(500).json({
       status: 'ERROR',
-      database: 'Desconectado ❌',
+      database: 'Desconectado',
       error: error.message
     });
   }
@@ -77,9 +74,12 @@ app.use('/api/empleados', empleadosRoutes);
 app.use('/api/clientes', clientesRoutes);
 app.use('/api/proveedores', proveedoresRoutes);
 app.use('/api/inventario', inventarioRoutes);
-
 app.use('/api/metodos-pago', metodosPagoRoutes);
 app.use('/api/detalle-venta', detalleVentaRoutes);
+app.use('/api/pagos', pagosRoutes);
+app.use('/api/factura', facturaRoutes);
+app.use('/api/devolucion', devolucionRoutes);
+app.use('/api/sucursales', sucursalesRoutes);
 
 // Manejo de errores 404
 app.use((req, res) => {
@@ -92,7 +92,7 @@ app.use((req, res) => {
 
 // Manejo de errores global
 app.use((err, req, res, next) => {
-  console.error('❌ Error:', err.stack);
+  console.error('Error:', err.stack);
   res.status(500).json({
     error: 'Error interno del servidor',
     message: err.message
@@ -101,24 +101,28 @@ app.use((err, req, res, next) => {
 
 // Iniciar servidor
 app.listen(PORT, () => {
-  console.log('\n🚀 ========================================');
+  console.log('\n Usando configuración local (DBngin/PostgreSQL)');
+  console.log('\n ========================================');
   console.log(`   RedMarket API corriendo en http://localhost:${PORT}`);
   console.log('   ========================================');
-  console.log('\n📡 Endpoints disponibles:');
+  console.log('\n Endpoints disponibles:');
   console.log(`   - Home:       http://localhost:${PORT}/`);
   console.log(`   - Health:     http://localhost:${PORT}/api/health`);
   console.log(`   - Productos:  http://localhost:${PORT}/api/productos`);
   console.log(`   - Ventas:     http://localhost:${PORT}/api/ventas`);
   console.log(`   - Empleados:  http://localhost:${PORT}/api/empleados`);
-  console.log(`   - Clientes:   http://localhost:${PORT}/api/clientes\n`);
-
+  console.log(`   - Clientes:   http://localhost:${PORT}/api/clientes`);
   console.log(`   - Métodos pago: http://localhost:${PORT}/api/metodos-pago`);
-  console.log(`   - Detalle venta: http://localhost:${PORT}/api/detalle-venta\n`);
+  console.log(`   - Detalle venta: http://localhost:${PORT}/api/detalle-venta`);
+  console.log(`   - Pagos: http://localhost:${PORT}/api/pagos`);
+  console.log(`   - factura: http://localhost:${PORT}/api/factura`);
+  console.log(`   - devolucion: http://localhost:${PORT}/api/devolucion`);
+  console.log(`   - Sucursales: http://localhost:${PORT}/api/sucursales`);
 });
 
 // Manejo de cierre graceful
 process.on('SIGINT', async () => {
-  console.log('\n\n👋 Cerrando servidor RedMarket...');
+  console.log('\n\n Cerrando servidor RedMarket...');
   await pool.end();
   process.exit(0);
 });

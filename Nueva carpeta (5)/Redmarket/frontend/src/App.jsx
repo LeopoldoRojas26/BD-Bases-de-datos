@@ -1,13 +1,15 @@
 ﻿import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Dashboard from './components/Dashboard';
-import Productos from './components/Productos';
-import Ventas from './components/Ventas';
-import Inventario from './components/Inventario';
-import Clientes from './components/Clientes';
-import Empleados from './components/Empleados';
-import Proveedores from './components/Proveedores';
-import MetodosPago from "./components/MetodosPago";
+
+// 🔹 Pantallas módulo (las crearemos enseguida)
+import VentasModule from './modules/VentasModule';
+import InventariosModule from './modules/InventariosModule';
+import ComprasModule from './modules/ComprasModule';
+import SucursalesModule from './modules/SucursalesModule';
+import RRHHModule from './modules/RRHHModule';
+import AdminModule from './modules/AdminModule';
+
 import './App.css';
 
 function App() {
@@ -15,16 +17,18 @@ function App() {
     <Router>
       <div className='app'>
         <Navbar />
+
         <div className='main-content'>
           <Routes>
-            <Route path='/' element={<Dashboard /> } />
-            <Route path='/productos' element={<Productos />} />
-            <Route path='/ventas' element={<Ventas />} />
-            <Route path='/inventario' element={<Inventario />} />
-            <Route path='/clientes' element={<Clientes />} />
-            <Route path='/empleados' element={<Empleados />} />
-            <Route path='/proveedores' element={<Proveedores />} />
-            <Route path='/metodos-pago' element={<MetodosPago />} />
+            <Route path='/' element={<Dashboard />} />
+
+            {/* RUTAS POR MÓDULO */}
+            <Route path='/ventas' element={<VentasModule />} />
+            <Route path='/inventarios' element={<InventariosModule />} />
+            <Route path='/compras' element={<ComprasModule />} />
+            <Route path='/sucursales' element={<SucursalesModule />} />
+            <Route path='/rrhh' element={<RRHHModule />} />
+            <Route path='/admin' element={<AdminModule />} />
           </Routes>
         </div>
       </div>
@@ -33,4 +37,3 @@ function App() {
 }
 
 export default App;
-

@@ -6,70 +6,185 @@ export default function MetodosPago() {
   const [metodos, setMetodos] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const [nombre, setNombre] = useState("");
+  const [descripcion, setDescripcion] = useState("");
+  const [editandoId, setEditandoId] = useState(null);
+
   const cargarMetodos = async () => {
     try {
       const res = await metodosPagoService.getAll();
-
-      console.log("RESPUESTA:", res.data); // 👈 útil para debug
-
-      setMetodos(res.data.data); // ✅ AQUÍ estaba el error
+      setMetodos(res.data.data);
     } catch (error) {
       console.error("Error cargando métodos:", error);
     } finally {
       setLoading(false);
     }
   };
+
   const handleDelete = async (id) => {
-  try {
-    await metodosPagoService.delete(id);
-    cargarMetodos(); // recarga la tabla
-  } catch (error) {
-    console.error("Error eliminando método:", error);
-  }
-};
+    try {
+      await metodosPagoService.delete(id);
+      cargarMetodos();
+    } catch (error) {
+      console.error("Error eliminando método:", error);
+    }
+  };
+
+  const handleEdit = (metodo) => {
+    setNombre(metodo.nombre);
+    setDescripcion(metodo.descripcion);
+    setEditandoId(metodo.id_metodo_pago);
+  };
+
+  const handleSubmit = async () => {
+    try {
+      if (!nombre.trim()) {
+        return alert("Escribe un nombre");
+      }
+
+      const data = {
+        nombre,
+        descripcion,
+      };
+
+      if (editandoId) {
+        await metodosPagoService.update(editandoId, data);
+        alert("Método actualizado");
+      } else {
+        await metodosPagoService.create(data);
+        alert("Método creado");
+      }
+
+      setNombre("");
+      setDescripcion("");
+      setEditandoId(null);
+
+      cargarMetodos();
+
+    } catch (error) {
+      console.error("Error guardando método:", error);
+    }
+  };
 
   useEffect(() => {
     cargarMetodos();
   }, []);
 
-  if (loading) return <h2>Cargando métodos de pago...</h2>;
+  if (loading) {
+    return (
+      <div className="loading">
+        <h2>Cargando métodos de pago...</h2>
+      </div>
+    );
+  }
 
   return (
-    <div className="page">
-      <div className="page-header">
-        <h1>💳 Métodos de Pago</h1>
-        <button className="btn-primary">+ Agregar método</button>
+    <div className="metodos-container">
+
+      <div className="metodos-card">
+
+        {/* HEADER */}
+        <div className="metodos-header">
+          <div>
+            <h1>💳 Métodos de Pago</h1>
+            <p>Administra los métodos disponibles del sistema</p>
+          </div>
+        </div>
+
+        {/* FORMULARIO */}
+        <div className="metodos-form">
+
+          <div className="input-group">
+            <label>Nombre</label>
+
+            <input
+              type="text"
+              placeholder="Ej. Tarjeta de crédito"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+            />
+          </div>
+
+          <div className="input-group">
+            <label>Descripción</label>
+
+            <input
+              type="text"
+              placeholder="Describe el método"
+              value={descripcion}
+              onChange={(e) => setDescripcion(e.target.value)}
+            />
+          </div>
+
+          <button
+            className="btn-primary"
+            onClick={handleSubmit}
+          >
+            {editandoId ? "Actualizar método" : "Agregar método"}
+          </button>
+        </div>
+
+        {/* TABLA */}
+        <div className="table-container">
+
+          <table className="metodos-table">
+
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+              {metodos.length === 0 ? (
+                <tr>
+                  <td colSpan="4" className="empty">
+                    No hay métodos registrados
+                  </td>
+                </tr>
+              ) : (
+                metodos.map((m) => (
+                  <tr key={m.id_metodo_pago}>
+
+                    <td>{m.id_metodo_pago}</td>
+
+                    <td>{m.nombre}</td>
+
+                    <td>{m.descripcion}</td>
+
+                    <td className="actions">
+
+                      <button
+                        className="btn-edit"
+                        onClick={() => handleEdit(m)}
+                      >
+                        Editar
+                      </button>
+
+                      <button
+                        className="btn-delete"
+                        onClick={() => handleDelete(m.id_metodo_pago)}
+                      >
+                        Eliminar
+                      </button>
+
+                    </td>
+                  </tr>
+                ))
+              )}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
       </div>
 
-      <table className="table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Descripción</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {metodos.map((m) => (
-            <tr key={m.id_metodo_pago}>
-              <td>{m.id_metodo_pago}</td>
-              <td>{m.nombre}</td>
-              <td>{m.descripcion}</td>
-              <td>
-                <button className="btn-edit">Editar</button>
-                <button
-  className="btn-delete"
-  onClick={() => handleDelete(m.id_metodo_pago)}
->
-  Eliminar
-</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
     </div>
   );
 }
