@@ -344,9 +344,9 @@ VALUES
 -- Estados (tabla de catálogo - 10 registros)
 INSERT INTO estado (nombre, abreviatura) VALUES
 ('Jalisco', 'JAL'),
-('Nuevo León', 'NL'),
-('Ciudad de México', 'CDMX'),
-('Estado de México', 'EDOMEX'),
+('Nuevo Leon', 'NL'),
+('Ciudad de Mexico', 'CDMX'),
+('Estado de Mexico', 'EDOMEX'),
 ('Puebla', 'PUE'),
 ('Querétaro', 'QRO'),
 ('Guanajuato', 'GTO'),
@@ -358,13 +358,13 @@ INSERT INTO estado (nombre, abreviatura) VALUES
 INSERT INTO ciudad (nombre, id_estado) VALUES
 ('Guadalajara', 1),
 ('Monterrey', 2),
-('Cuauhtémoc', 3),
+('Cuauhtemoc', 3),
 ('Toluca', 4),
 ('Puebla de Zaragoza', 5),
-('Santiago de Querétaro', 6),
-('León', 7),
-('Mérida', 8),
-('Cancún', 9),
+('Santiago de Queretaro', 6),
+('Leon', 7),
+('Merida', 8),
+('Cancun', 9),
 ('Boca del Río', 10);
 
 -- ============================================================
@@ -387,7 +387,7 @@ INSERT INTO direccion (calle, numero, colonia, codigo_postal, id_ciudad) VALUES
 ('Calzada de Tlalpan', '111', 'Valle', '01011', 2),
 ('Av. Constitución', '112', 'Centro', '01012', 3),
 ('Calle Allende', '113', 'Norte', '01013', 4),
-('Boulevard Kukulcán', '114', 'Sur', '01014', 5),
+('Boulevard Kukulcan', '114', 'Sur', '01014', 5),
 ('Av. López Mateos', '115', 'Este', '01015', 6),
 ('Calle Guerrero', '116', 'Oeste', '01016', 7),
 ('Calzada Independencia', '117', 'Valle', '01017', 8),
@@ -421,8 +421,8 @@ INSERT INTO direccion (calle, numero, colonia, codigo_postal, id_ciudad) VALUES
 ('Av. Acueducto', '145', 'Este', '01045', 6),
 ('Calle Escobedo', '146', 'Oeste', '01046', 7),
 ('Calzada del Federalismo', '147', 'Valle', '01047', 8),
-('Av. Circunvalación', '148', 'Centro', '01048', 9),
-('Calle Rayón', '149', 'Norte', '01049', 10);
+('Av. Circunvalacion', '148', 'Centro', '01048', 9),
+('Calle Rayon', '149', 'Norte', '01049', 10);
 
 -- Sucursales (tabla de catálogo - 10 registros)
 INSERT INTO sucursal (nombre, telefono, id_direccion, activo) VALUES
@@ -435,7 +435,7 @@ INSERT INTO sucursal (nombre, telefono, id_direccion, activo) VALUES
 ('Sucursal Centro TOL', '555-100-0007', 7, TRUE),
 ('Sucursal Industrial NAU', '555-100-0008', 8, TRUE),
 ('Sucursal Angelópolis PUE', '555-100-0009', 9, TRUE),
-('Sucursal Histórica PUE', '555-100-0010', 10, TRUE);
+('Sucursal Historica PUE', '555-100-0010', 10, TRUE);
 
 -- Almacenes (tabla transaccional - 50 registros)
 INSERT INTO almacen (nombre, id_sucursal, capacidad, activo) VALUES
