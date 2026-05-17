@@ -1,10 +1,11 @@
-{
+﻿{
   "name": "redmarket-fullstack",
   "version": "1.0.0",
   "description": "Sistema RedMarket - Frontend React + Vite y Backend Node.js + PostgreSQL",
   "main": "backend/src/index.js",
   "scripts": {
     "install-all": "cd backend && npm install && cd ../frontend && npm install",
+    "init-db": "cd backend && npm run init-db",
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
     "build:frontend": "cd frontend && npm run build",

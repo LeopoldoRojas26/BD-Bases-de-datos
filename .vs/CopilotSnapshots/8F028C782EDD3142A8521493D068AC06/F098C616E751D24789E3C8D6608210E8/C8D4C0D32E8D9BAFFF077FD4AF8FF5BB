@@ -1,4 +1,4 @@
-{
+﻿{
   "name": "redmarket-fullstack",
   "version": "1.0.0",
   "description": "Sistema RedMarket - Frontend React + Vite y Backend Node.js + PostgreSQL",
