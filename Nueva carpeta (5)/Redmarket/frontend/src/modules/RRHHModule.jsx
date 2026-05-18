@@ -175,6 +175,33 @@ const RRHHModule = () => {
     }
   };
 
+  const handleDeleteEmpleado = async (empleado) => {
+    const empleadoId = empleado?.id_empleado;
+
+    if (!empleadoId) {
+      alert("❌ No se encontró el ID del empleado a eliminar");
+      return;
+    }
+
+    const nombre = empleado?.nombre_completo || "este empleado";
+    const confirmado = window.confirm(`¿Seguro que deseas eliminar a ${nombre}?`);
+    if (!confirmado) return;
+
+    try {
+      await empleadosService.delete(empleadoId);
+
+      if (modalMode === "edit" && editingEmpleadoId === empleadoId) {
+        closeModal();
+      }
+
+      await fetchEmpleados();
+      alert("✅ Empleado eliminado exitosamente");
+    } catch (err) {
+      const errorMsg = err.response?.data?.error || err.message;
+      alert("❌ Error al eliminar empleado: " + errorMsg);
+    }
+  };
+
   const empleadosFiltrados = empleados.filter(
     (e) =>
       e.nombre_completo.toLowerCase().includes(busqueda.toLowerCase()) ||
@@ -283,6 +310,14 @@ const RRHHModule = () => {
                     onClick={() => openEditModal(e)}
                   >
                     Editar
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn-delete"
+                    onClick={() => handleDeleteEmpleado(e)}
+                  >
+                    Eliminar
                   </button>
                 </div>
               </div>
