@@ -5,7 +5,6 @@
   "main": "backend/src/index.js",
   "scripts": {
     "install-all": "cd backend && npm install && cd ../frontend && npm install",
-    "init-db": "cd backend && npm run init-db",
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
     "build:frontend": "cd frontend && npm run build",

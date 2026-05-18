@@ -39,6 +39,30 @@ export const proveedoresService = {
   delete: (id) => api.delete(`/proveedores/${id}`),
 };
 
+export const ordenCompraService = {
+  getAll: () => api.get('/orden-compra'),
+  getById: (id) => api.get(`/orden-compra/${id}`),
+  create: (data) => api.post('/orden-compra', data),
+  update: (id, data) => api.put(`/orden-compra/${id}`, data),
+  delete: (id) => api.delete(`/orden-compra/${id}`),
+};
+
+export const detalleOrdenCompraService = {
+  getAll: () => api.get('/detalle-orden-compra'),
+  getById: (id) => api.get(`/detalle-orden-compra/${id}`),
+  create: (data) => api.post('/detalle-orden-compra', data),
+  update: (id, data) => api.put(`/detalle-orden-compra/${id}`, data),
+  delete: (id) => api.delete(`/detalle-orden-compra/${id}`),
+};
+
+export const recepcionMercanciaService = {
+  getAll: () => api.get('/recepcion-mercancia'),
+  getById: (id) => api.get(`/recepcion-mercancia/${id}`),
+  create: (data) => api.post('/recepcion-mercancia', data),
+  update: (id, data) => api.put(`/recepcion-mercancia/${id}`, data),
+  delete: (id) => api.delete(`/recepcion-mercancia/${id}`),
+};
+
 export const inventarioService = {
   getAll: () => api.get('/inventario'),
   getById: (id) => api.get(`/inventario/${id}`),
@@ -84,4 +108,56 @@ export const devolucionService = {
   create: (data) => api.post('/devolucion', data),
   update: (id, data) => api.put(`/devolucion/${id}`, data),
   delete: (id) => api.delete(`/devolucion/${id}`),
+};
+
+export const usuariosService = {
+  getAll: () => api.get('/usuarios'),
+  getById: (id) => api.get(`/usuarios/${id}`),
+  create: (data) => api.post('/usuarios', data),
+  update: (id, data) => api.put(`/usuarios/${id}`, data),
+  delete: (id) => api.delete(`/usuarios/${id}`),
+};
+
+export const rolesService = {
+  getAll: () => api.get('/roles'),
+  getById: (id) => api.get(`/roles/${id}`),
+  create: (data) => api.post('/roles', data),
+  update: (id, data) => api.put(`/roles/${id}`, data),
+  delete: (id) => api.delete(`/roles/${id}`),
+};
+
+export const usuarioRolService = {
+  getAll: () => api.get('/usuario-rol'),
+  getById: (id) => api.get(`/usuario-rol/${id}`),
+  create: (data) => api.post('/usuario-rol', data),
+  update: (id, data) => api.put(`/usuario-rol/${id}`, data),
+  delete: (id) => api.delete(`/usuario-rol/${id}`),
+};
+
+export const permisosSistemaService = {
+  getAll: () => api.get('/permisos-sistema'),
+  getById: (id) => api.get(`/permisos-sistema/${id}`),
+  create: (data) => api.post('/permisos-sistema', data),
+  update: (id, data) => api.put(`/permisos-sistema/${id}`, data),
+  delete: (id) => api.delete(`/permisos-sistema/${id}`),
+};
+
+export const rolPermisoService = {
+  getAll: () => api.get('/rol-permiso'),
+  getById: (id) => api.get(`/rol-permiso/${id}`),
+  create: (data) => api.post('/rol-permiso', data),
+  update: (id, data) => api.put(`/rol-permiso/${id}`, data),
+  delete: (id) => api.delete(`/rol-permiso/${id}`),
+};
+
+export const bitacoraService = {
+  getAll: () => api.get('/bitacora'),
+  getById: (id) => api.get(`/bitacora/${id}`)
+  // Bitácora es de solo lectura, no tiene create, update, ni delete
+};
+
+export const sesionesService = {
+  getAll: () => api.get('/sesiones'),
+  getById: (id) => api.get(`/sesiones/${id}`),
+  revocar: (id) => api.put(`/sesiones/${id}/revocar`)
 };

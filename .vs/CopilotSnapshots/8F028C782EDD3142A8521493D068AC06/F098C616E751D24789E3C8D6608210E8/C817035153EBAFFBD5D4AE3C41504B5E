@@ -1,4 +1,4 @@
-const pool = require('../config/database');
+﻿const pool = require('../config/database');
 
 const initDatabase = async () => {
   console.log('⚠️  init.js está DESHABILITADO');

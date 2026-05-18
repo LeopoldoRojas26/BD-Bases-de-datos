@@ -1,0 +1,278 @@
+﻿-- =====================================================
+-- TRIGGERS PARA SPRINT 4
+-- Sistema de Gestión - RedMarket
+-- =====================================================
+-- Basado en el esquema real de la base de datos:
+-- - Tabla: venta
+-- - Tabla: detalle_venta (id_venta, id_producto, cantidad, precio_unitario)
+-- - Tabla: producto (id_producto, nombre, precio)
+-- - Tabla: inventario (id_producto, stock_actual, stock_minimo, stock_maximo)
+-- =====================================================
+
+-- =====================================================
+-- TRIGGER 1: VALIDAR STOCK ANTES DE VENTA
+-- =====================================================
+-- Propósito: Validar que hay suficiente stock ANTES de insertar en detalle_venta
+-- Tipo: BEFORE INSERT
+-- Usa: RAISE EXCEPTION para rechazar ventas sin stock suficiente
+
+DROP TRIGGER IF EXISTS trigger_validar_stock_venta ON detalle_venta;
+DROP FUNCTION IF EXISTS validar_stock_antes_venta();
+
+CREATE OR REPLACE FUNCTION validar_stock_antes_venta()
+RETURNS TRIGGER AS $$
+DECLARE
+  stock_disponible INTEGER;
+  nombre_producto_var VARCHAR(150);
+BEGIN
+  -- Obtener stock actual y nombre del producto desde inventario
+  SELECT 
+    i.stock_actual,
+    p.nombre
+  INTO 
+    stock_disponible,
+    nombre_producto_var
+  FROM inventario i
+  INNER JOIN producto p ON p.id_producto = i.id_producto
+  WHERE i.id_producto = NEW.id_producto;
+
+  -- Si no existe en inventario, rechazar
+  IF stock_disponible IS NULL THEN
+    RAISE EXCEPTION 'ERROR: El producto ID % no existe en inventario', NEW.id_producto;
+  END IF;
+
+  -- Validar stock suficiente
+  IF stock_disponible < NEW.cantidad THEN
+    RAISE EXCEPTION 'ERROR: Stock insuficiente para "%" (ID: %). Stock disponible: %, Cantidad solicitada: %',
+      nombre_producto_var, 
+      NEW.id_producto, 
+      stock_disponible, 
+      NEW.cantidad;
+  END IF;
+
+  -- Si pasa validación, permitir la inserción
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_validar_stock_venta
+BEFORE INSERT ON detalle_venta
+FOR EACH ROW
+EXECUTE FUNCTION validar_stock_antes_venta();
+
+-- =====================================================
+-- TRIGGER 2: DESCONTAR STOCK DESPUÉS DE VENTA
+-- =====================================================
+-- Propósito: Descontar automáticamente el stock DESPUÉS de confirmar venta
+-- Tipo: AFTER INSERT
+-- Usa: RAISE EXCEPTION si el resultado deja stock negativo (caso extremo)
+
+DROP TRIGGER IF EXISTS trigger_descontar_stock_venta ON detalle_venta;
+DROP FUNCTION IF EXISTS descontar_stock_despues_venta();
+
+CREATE OR REPLACE FUNCTION descontar_stock_despues_venta()
+RETURNS TRIGGER AS $$
+DECLARE
+  stock_anterior INTEGER;
+  stock_nuevo INTEGER;
+  nombre_producto_var VARCHAR(150);
+BEGIN
+  -- Obtener stock actual antes del descuento
+  SELECT 
+    i.stock_actual,
+    p.nombre
+  INTO 
+    stock_anterior,
+    nombre_producto_var
+  FROM inventario i
+  INNER JOIN producto p ON p.id_producto = i.id_producto
+  WHERE i.id_producto = NEW.id_producto;
+
+  -- Descontar el stock y actualizar timestamp
+  UPDATE inventario
+  SET 
+    stock_actual = stock_actual - NEW.cantidad,
+    ultima_actualizacion = CURRENT_TIMESTAMP
+  WHERE id_producto = NEW.id_producto;
+
+  -- Obtener el stock resultante
+  SELECT stock_actual 
+  INTO stock_nuevo
+  FROM inventario
+  WHERE id_producto = NEW.id_producto;
+
+  -- Validación final: Si quedó negativo (no debería pasar si trigger 1 funciona), revertir
+  IF stock_nuevo < 0 THEN
+    RAISE EXCEPTION 'ERROR CRÍTICO: Stock negativo detectado (%). Producto: "%" (ID: %). Transacción cancelada.',
+      stock_nuevo,
+      nombre_producto_var,
+      NEW.id_producto;
+  END IF;
+
+  -- Log informativo (opcional, para debugging)
+  RAISE NOTICE 'Stock actualizado: Producto "%" (ID: %) | Antes: % | Vendido: % | Ahora: %',
+    nombre_producto_var,
+    NEW.id_producto,
+    stock_anterior,
+    NEW.cantidad,
+    stock_nuevo;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_descontar_stock_venta
+AFTER INSERT ON detalle_venta
+FOR EACH ROW
+EXECUTE FUNCTION descontar_stock_despues_venta();
+
+-- =====================================================
+-- VERIFICACIÓN DE TRIGGERS
+-- =====================================================
+-- Ejecuta estos queries para confirmar que los triggers se crearon correctamente:
+
+/*
+-- Ver triggers creados en la tabla detalle_venta
+SELECT 
+  trigger_name,
+  event_manipulation,
+  action_timing,
+  action_statement
+FROM information_schema.triggers
+WHERE event_object_table = 'detalle_venta'
+ORDER BY action_timing, trigger_name;
+
+-- Ver funciones creadas
+SELECT 
+  routine_name,
+  routine_type
+FROM information_schema.routines
+WHERE routine_schema = 'public'
+  AND routine_name LIKE '%stock%'
+ORDER BY routine_name;
+*/
+
+-- =====================================================
+-- PRUEBAS DE LOS TRIGGERS
+-- =====================================================
+
+/*
+-- ============================================
+-- CASO 1: Venta exitosa con stock suficiente
+-- ============================================
+-- Prerequisitos:
+-- 1. Debe existir un producto con id_producto = 1
+-- 2. Debe tener stock_actual >= 5 en inventario
+-- 3. Debe existir un cliente con id_cliente = 1
+-- 4. Debe existir un empleado con id_empleado = 1
+
+-- Paso 1: Verificar stock actual
+SELECT 
+  p.id_producto,
+  p.nombre,
+  i.stock_actual
+FROM producto p
+INNER JOIN inventario i ON i.id_producto = p.id_producto
+WHERE p.id_producto = 1;
+
+-- Paso 2: Crear venta
+INSERT INTO venta (fecha, total, id_cliente, id_empleado)
+VALUES (CURRENT_TIMESTAMP, 500.00, 1, 1);
+
+-- Paso 3: Obtener ID de la venta recién creada
+SELECT id_venta FROM venta ORDER BY id_venta DESC LIMIT 1;
+-- Supongamos que devuelve id_venta = 100
+
+-- Paso 4: Insertar detalle (debe funcionar si hay stock suficiente)
+INSERT INTO detalle_venta (id_venta, id_producto, cantidad, precio_unitario)
+VALUES (100, 1, 5, 100.00);
+-- ✅ Esperado: Inserción exitosa, stock_actual disminuye en 5
+
+-- Paso 5: Verificar que el stock se descontó
+SELECT 
+  p.id_producto,
+  p.nombre,
+  i.stock_actual,
+  i.ultima_actualizacion
+FROM producto p
+INNER JOIN inventario i ON i.id_producto = p.id_producto
+WHERE p.id_producto = 1;
+-- ✅ Esperado: stock_actual disminuyó en 5, ultima_actualizacion actualizada
+
+-- ============================================
+-- CASO 2: Venta rechazada por stock insuficiente
+-- ============================================
+-- Prerequisitos: Producto con stock_actual = 3
+
+-- Paso 1: Verificar stock actual
+SELECT 
+  p.id_producto,
+  p.nombre,
+  i.stock_actual
+FROM producto p
+INNER JOIN inventario i ON i.id_producto = p.id_producto
+WHERE p.id_producto = 2;
+-- Supongamos que stock_actual = 3
+
+-- Paso 2: Crear venta
+INSERT INTO venta (fecha, total, id_cliente, id_empleado)
+VALUES (CURRENT_TIMESTAMP, 1000.00, 1, 1);
+-- Supongamos que devuelve id_venta = 101
+
+-- Paso 3: Intentar vender más de lo disponible
+INSERT INTO detalle_venta (id_venta, id_producto, cantidad, precio_unitario)
+VALUES (101, 2, 10, 100.00);
+-- ❌ Esperado: ERROR con mensaje:
+-- "ERROR: Stock insuficiente para "Nombre Producto" (ID: 2). Stock disponible: 3, Cantidad solicitada: 10"
+
+-- Paso 4: Verificar que el stock NO cambió
+SELECT 
+  p.id_producto,
+  p.nombre,
+  i.stock_actual
+FROM producto p
+INNER JOIN inventario i ON i.id_producto = p.id_producto
+WHERE p.id_producto = 2;
+-- ✅ Esperado: stock_actual sigue siendo 3 (no cambió)
+
+-- ============================================
+-- CASO 3: Producto no existe en inventario
+-- ============================================
+-- Intentar vender producto que no está en inventario
+
+INSERT INTO venta (fecha, total, id_cliente, id_empleado)
+VALUES (CURRENT_TIMESTAMP, 500.00, 1, 1);
+-- Supongamos id_venta = 102
+
+INSERT INTO detalle_venta (id_venta, id_producto, cantidad, precio_unitario)
+VALUES (102, 99999, 1, 100.00);
+-- ❌ Esperado: ERROR con mensaje:
+-- "ERROR: El producto ID 99999 no existe en inventario"
+*/
+
+-- =====================================================
+-- NOTAS IMPORTANTES
+-- =====================================================
+/*
+1. Los triggers funcionan con TU esquema real:
+   - detalle_venta.id_producto
+   - detalle_venta.cantidad
+   - inventario.stock_actual
+   - producto.nombre
+
+2. Cumple requisitos de Sprint 4:
+   ✅ Trigger 1 (BEFORE): Usa RAISE EXCEPTION para validar stock
+   ✅ Trigger 2 (AFTER): Usa RAISE EXCEPTION en casos críticos
+   ✅ Ambos usan PL/pgSQL
+   ✅ Protegen la integridad del inventario
+
+3. Orden de ejecución:
+   a. Usuario inserta en detalle_venta
+   b. Trigger 1 (BEFORE) valida stock → Si falla, RAISE EXCEPTION y cancela
+   c. Si pasa, se inserta el registro
+   d. Trigger 2 (AFTER) descuenta stock → Si falla, RAISE EXCEPTION y revierte
+
+4. Para adaptar a otros productos, solo cambia:
+   - id_producto en las pruebas
+   - Asegúrate que existe en inventario con stock_actual > 0
+*/

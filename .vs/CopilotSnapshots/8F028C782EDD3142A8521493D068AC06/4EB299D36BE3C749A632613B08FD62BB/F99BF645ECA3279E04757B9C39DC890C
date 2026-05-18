@@ -1,0 +1,608 @@
+﻿-- =====================================================
+-- Vistas para Reportes Complejos - PostgreSQL
+-- Reportes precompilados directamente en la base de datos
+-- =====================================================
+
+-- Vista 1: Resumen de órdenes de compra por proveedor
+CREATE OR REPLACE VIEW vw_ordenes_por_proveedor AS
+SELECT 
+    p.id_proveedor,
+    p.nombre_proveedor,
+    p.correo,
+    COUNT(DISTINCT oc.id_orden_compra) AS total_ordenes,
+    SUM(oc.total_orden) AS monto_total_comprado,
+    AVG(oc.total_orden) AS promedio_por_orden,
+    MIN(oc.fecha_orden) AS primera_orden,
+    MAX(oc.fecha_orden) AS ultima_orden,
+    COUNT(CASE WHEN oc.estado_orden = 'recibida' THEN 1 END) AS ordenes_recibidas,
+    COUNT(CASE WHEN oc.estado_orden = 'pendiente' THEN 1 END) AS ordenes_pendientes,
+    COUNT(CASE WHEN oc.estado_orden = 'enviada' THEN 1 END) AS ordenes_enviadas
+FROM proveedor p
+LEFT JOIN orden_compra oc ON p.id_proveedor = oc.id_proveedor
+WHERE p.estado = 'activo'
+GROUP BY p.id_proveedor, p.nombre_proveedor, p.correo
+ORDER BY monto_total_comprado DESC NULLS LAST;
+
+COMMENT ON VIEW vw_ordenes_por_proveedor IS 'Resumen estadístico de órdenes de compra agrupadas por proveedor';
+
+-- Vista 2: Productos más solicitados
+CREATE OR REPLACE VIEW vw_productos_mas_solicitados AS
+SELECT 
+    pr.id_producto,
+    pr.nombre AS nombre_producto,
+    cp.nombre AS categoria,
+    pr.precio AS precio_actual,
+    COUNT(DISTINCT doc.id_orden_compra) AS veces_ordenado,
+    SUM(doc.cantidad) AS cantidad_total_ordenada,
+    SUM(doc.subtotal) AS monto_total_ventas,
+    AVG(doc.precio_unitario) AS precio_promedio_compra,
+    ROUND(SUM(doc.cantidad) * 100.0 / NULLIF(SUM(SUM(doc.cantidad)) OVER(), 0), 2) AS porcentaje_ventas
+FROM producto pr
+INNER JOIN categoria_producto cp ON pr.id_categoria = cp.id_categoria
+INNER JOIN detalle_orden_compra doc ON pr.id_producto = doc.id_producto
+GROUP BY pr.id_producto, pr.nombre, cp.nombre, pr.precio
+ORDER BY cantidad_total_ordenada DESC;
+
+COMMENT ON VIEW vw_productos_mas_solicitados IS 'Ranking de productos más solicitados con estadísticas de compra';
+
+-- Vista 3: Detalle completo de órdenes de compra
+CREATE OR REPLACE VIEW vw_detalle_ordenes_compra AS
+SELECT 
+    oc.id_orden_compra,
+    oc.fecha_orden,
+    p.nombre_proveedor,
+    p.telefono AS telefono_proveedor,
+    p.correo AS correo_proveedor,
+    oc.estado_orden,
+    oc.fecha_entrega,
+    prod.nombre AS nombre_producto,
+    cp.nombre AS categoria,
+    doc.cantidad,
+    doc.precio_unitario,
+    doc.subtotal,
+    oc.total_orden,
+    CASE 
+        WHEN oc.fecha_entrega IS NOT NULL 
+        THEN oc.fecha_entrega - oc.fecha_orden 
+        ELSE NULL 
+    END AS dias_entrega,
+    rm.fecha_recepcion,
+    rm.recibido_por,
+    rm.estado_recepcion,
+    rm.observaciones AS observaciones_recepcion
+FROM orden_compra oc
+INNER JOIN proveedor p ON oc.id_proveedor = p.id_proveedor
+INNER JOIN detalle_orden_compra doc ON oc.id_orden_compra = doc.id_orden_compra
+INNER JOIN producto prod ON doc.id_producto = prod.id_producto
+INNER JOIN categoria_producto cp ON prod.id_categoria = cp.id_categoria
+LEFT JOIN recepcion_mercancia rm ON oc.id_orden_compra = rm.id_orden_compra
+ORDER BY oc.fecha_orden DESC, oc.id_orden_compra, prod.nombre;
+
+COMMENT ON VIEW vw_detalle_ordenes_compra IS 'Vista detallada de todas las órdenes con información de productos, proveedores y recepción';
+
+-- Vista 4: Análisis de recepciones de mercancía
+CREATE OR REPLACE VIEW vw_analisis_recepciones AS
+SELECT 
+    rm.id_recepcion,
+    rm.fecha_recepcion,
+    oc.id_orden_compra,
+    oc.fecha_orden,
+    p.nombre_proveedor,
+    rm.recibido_por,
+    rm.estado_recepcion,
+    oc.total_orden,
+    EXTRACT(DAY FROM rm.fecha_recepcion - oc.fecha_orden) AS dias_desde_orden,
+    CASE 
+        WHEN rm.estado_recepcion = 'completa' THEN 'A tiempo'
+        WHEN rm.estado_recepcion = 'parcial' THEN 'Incompleta'
+        WHEN rm.estado_recepcion = 'pendiente' THEN 'Pendiente'
+        ELSE 'Rechazada'
+    END AS estado_descripcion,
+    rm.observaciones,
+    COUNT(doc.id_detalle_orden) AS items_en_orden
+FROM recepcion_mercancia rm
+INNER JOIN orden_compra oc ON rm.id_orden_compra = oc.id_orden_compra
+INNER JOIN proveedor p ON oc.id_proveedor = p.id_proveedor
+LEFT JOIN detalle_orden_compra doc ON oc.id_orden_compra = doc.id_orden_compra
+GROUP BY rm.id_recepcion, rm.fecha_recepcion, oc.id_orden_compra, oc.fecha_orden, 
+         p.nombre_proveedor, rm.recibido_por, rm.estado_recepcion, oc.total_orden, rm.observaciones
+ORDER BY rm.fecha_recepcion DESC;
+
+COMMENT ON VIEW vw_analisis_recepciones IS 'Análisis de recepciones con tiempos de entrega y estados';
+
+-- Vista 5: Resumen financiero por categoría de producto
+CREATE OR REPLACE VIEW vw_resumen_por_categoria AS
+SELECT 
+    cp.nombre AS categoria,
+    COUNT(DISTINCT pr.id_producto) AS productos_diferentes,
+    COUNT(DISTINCT doc.id_orden_compra) AS ordenes_relacionadas,
+    SUM(doc.cantidad) AS unidades_totales,
+    SUM(doc.subtotal) AS monto_total,
+    AVG(doc.precio_unitario) AS precio_promedio,
+    MIN(doc.precio_unitario) AS precio_minimo,
+    MAX(doc.precio_unitario) AS precio_maximo,
+    ROUND(SUM(doc.subtotal) * 100.0 / NULLIF(SUM(SUM(doc.subtotal)) OVER(), 0), 2) AS porcentaje_inversion
+FROM producto pr
+INNER JOIN categoria_producto cp ON pr.id_categoria = cp.id_categoria
+INNER JOIN detalle_orden_compra doc ON pr.id_producto = doc.id_producto
+GROUP BY cp.nombre
+ORDER BY monto_total DESC;
+
+COMMENT ON VIEW vw_resumen_por_categoria IS 'Resumen financiero y estadístico agrupado por categoría de producto';
+
+-- Vista 6: Órdenes pendientes de entrega
+CREATE OR REPLACE VIEW vw_ordenes_pendientes AS
+SELECT 
+    oc.id_orden_compra,
+    oc.fecha_orden,
+    p.nombre_proveedor,
+    p.telefono,
+    p.correo,
+    oc.total_orden,
+    oc.estado_orden,
+    oc.fecha_entrega,
+    CASE 
+        WHEN oc.fecha_entrega IS NULL THEN NULL
+        WHEN oc.fecha_entrega < CURRENT_DATE THEN CURRENT_DATE - oc.fecha_entrega
+        ELSE 0
+    END AS dias_retraso,
+    COUNT(doc.id_detalle_orden) AS items_totales,
+    STRING_AGG(DISTINCT cp.nombre, ', ') AS categorias_productos
+FROM orden_compra oc
+INNER JOIN proveedor p ON oc.id_proveedor = p.id_proveedor
+INNER JOIN detalle_orden_compra doc ON oc.id_orden_compra = doc.id_orden_compra
+INNER JOIN producto prod ON doc.id_producto = prod.id_producto
+INNER JOIN categoria_producto cp ON prod.id_categoria = cp.id_categoria
+WHERE oc.estado_orden IN ('pendiente', 'enviada')
+GROUP BY oc.id_orden_compra, oc.fecha_orden, p.nombre_proveedor, p.telefono, 
+         p.correo, oc.total_orden, oc.estado_orden, oc.fecha_entrega
+ORDER BY oc.fecha_orden ASC;
+
+COMMENT ON VIEW vw_ordenes_pendientes IS 'Listado de órdenes pendientes y enviadas con información de retrasos';
+
+-- Vista 7: Rendimiento de empleados en recepción
+CREATE OR REPLACE VIEW vw_rendimiento_recepcion AS
+SELECT 
+    rm.recibido_por,
+    COUNT(DISTINCT rm.id_recepcion) AS total_recepciones,
+    COUNT(CASE WHEN rm.estado_recepcion = 'completa' THEN 1 END) AS recepciones_completas,
+    COUNT(CASE WHEN rm.estado_recepcion = 'parcial' THEN 1 END) AS recepciones_parciales,
+    COUNT(CASE WHEN rm.estado_recepcion = 'rechazada' THEN 1 END) AS recepciones_rechazadas,
+    ROUND(COUNT(CASE WHEN rm.estado_recepcion = 'completa' THEN 1 END) * 100.0 / 
+          NULLIF(COUNT(*), 0), 2) AS porcentaje_efectividad,
+    SUM(oc.total_orden) AS valor_total_recibido,
+    MIN(rm.fecha_recepcion) AS primera_recepcion,
+    MAX(rm.fecha_recepcion) AS ultima_recepcion
+FROM recepcion_mercancia rm
+INNER JOIN orden_compra oc ON rm.id_orden_compra = oc.id_orden_compra
+GROUP BY rm.recibido_por
+ORDER BY total_recepciones DESC, porcentaje_efectividad DESC;
+
+COMMENT ON VIEW vw_rendimiento_recepcion IS 'Análisis de rendimiento de empleados en proceso de recepción de mercancía';
+
+-- Vista 8: Historial de compras mensual
+CREATE OR REPLACE VIEW vw_compras_mensuales AS
+SELECT 
+    TO_CHAR(oc.fecha_orden, 'YYYY-MM') AS mes,
+    EXTRACT(YEAR FROM oc.fecha_orden) AS anio,
+    EXTRACT(MONTH FROM oc.fecha_orden) AS numero_mes,
+    COUNT(DISTINCT oc.id_orden_compra) AS total_ordenes,
+    COUNT(DISTINCT oc.id_proveedor) AS proveedores_diferentes,
+    SUM(oc.total_orden) AS monto_total,
+    AVG(oc.total_orden) AS promedio_orden,
+    MIN(oc.total_orden) AS orden_minima,
+    MAX(oc.total_orden) AS orden_maxima,
+    SUM(CASE WHEN oc.estado_orden = 'recibida' THEN oc.total_orden ELSE 0 END) AS monto_recibido,
+    SUM(CASE WHEN oc.estado_orden = 'pendiente' THEN oc.total_orden ELSE 0 END) AS monto_pendiente
+FROM orden_compra oc
+GROUP BY TO_CHAR(oc.fecha_orden, 'YYYY-MM'), 
+         EXTRACT(YEAR FROM oc.fecha_orden), 
+         EXTRACT(MONTH FROM oc.fecha_orden)
+ORDER BY anio DESC, numero_mes DESC;
+
+COMMENT ON VIEW vw_compras_mensuales IS 'Resumen de compras agrupado por mes con métricas financieras';
+
+
+-- ============================================================
+--  VIEWS.SQL – Módulos Recursos Humanos y Administrativo 
+-- ============================================================
+
+-- ============================================================
+-- VISTA 1: Directorio completo de empleados activos
+-- Muestra nombre completo, puesto, nivel, departamento,
+-- turno y fecha de ingreso de todos los empleados activos.
+-- ============================================================
+
+CREATE OR REPLACE VIEW vw_directorio_empleados AS
+SELECT
+    e.id_empleado,
+    e.nombre || ' ' || e.apellido_paterno ||
+        COALESCE(' ' || e.apellido_materno, '') AS nombre_completo,
+    p.nombre_puesto,
+    p.nivel,
+    d.nombre_departamento,
+    t.nombre_turno,
+    t.hora_inicio || ' - ' || t.hora_fin          AS horario,
+    e.fecha_ingreso,
+    DATE_PART('year', AGE(CURRENT_DATE, e.fecha_ingreso))
+                                                   AS anios_antiguedad,
+    e.email,
+    e.telefono,
+    e.estatus
+FROM Empleados e
+JOIN Puestos       p ON e.id_puesto        = p.id_puesto
+JOIN Departamentos d ON e.id_departamento  = d.id_departamento
+JOIN Turnos        t ON e.id_turno         = t.id_turno
+WHERE e.estatus = 'activo'
+ORDER BY d.nombre_departamento, e.apellido_paterno;
+
+-- ============================================================
+-- VISTA 2: Resumen de nómina por departamento
+-- Agrega el costo total de nómina (bruto, deducciones y neto)
+-- por departamento en el último período registrado.  
+-- ============================================================
+CREATE OR REPLACE VIEW vw_nomina_por_departamento AS
+SELECT
+    d.nombre_departamento,
+    COUNT(DISTINCT n.id_empleado)     AS total_empleados,
+    n.periodo_inicio,
+    n.periodo_fin,
+    SUM(n.salario_bruto)              AS total_bruto,
+    SUM(n.deducciones)                AS total_deducciones,
+    SUM(n.salario_neto)               AS total_neto,
+    ROUND(AVG(n.salario_bruto), 2)    AS promedio_bruto,
+    ROUND(AVG(n.salario_neto),  2)    AS promedio_neto
+FROM Nominas n
+JOIN Empleados     e ON n.id_empleado      = e.id_empleado
+JOIN Departamentos d ON e.id_departamento  = d.id_departamento
+WHERE (n.periodo_inicio, n.periodo_fin) = (
+    SELECT MAX(n2.periodo_inicio), MAX(n2.periodo_fin)
+    FROM Nominas n2
+)
+GROUP BY d.nombre_departamento, n.periodo_inicio, n.periodo_fin
+ORDER BY total_neto DESC;
+
+-- ============================================================
+-- VISTA 3: Reporte de asistencia mensual por empleado
+-- Cuenta presencias, faltas, retardos y permisos en el mes
+-- en curso y calcula el porcentaje de asistencia.  
+-- ============================================================
+
+CREATE OR REPLACE VIEW vw_asistencia_mensual AS
+SELECT
+    e.id_empleado,
+    e.nombre || ' ' || e.apellido_paterno       AS nombre_completo,
+    d.nombre_departamento,
+    DATE_TRUNC('month', a.fecha)::DATE           AS mes,
+    COUNT(*)                                     AS dias_registrados,
+    COUNT(*) FILTER (WHERE a.estatus = 'presente') AS presencias,
+    COUNT(*) FILTER (WHERE a.estatus = 'falta')    AS faltas,
+    COUNT(*) FILTER (WHERE a.estatus = 'retardo')  AS retardos,
+    COUNT(*) FILTER (WHERE a.estatus = 'permiso')  AS permisos,
+    ROUND(
+        COUNT(*) FILTER (WHERE a.estatus = 'presente') * 100.0
+        / NULLIF(COUNT(*), 0), 2
+    )                                            AS pct_asistencia
+FROM Asistencias a
+JOIN Empleados     e ON a.id_empleado     = e.id_empleado
+JOIN Departamentos d ON e.id_departamento = d.id_departamento
+GROUP BY e.id_empleado, nombre_completo, d.nombre_departamento,
+         DATE_TRUNC('month', a.fecha)
+ORDER BY mes DESC, d.nombre_departamento, nombre_completo;
+
+-- ============================================================
+-- VISTA 4: Incidencias con impacto en nómina
+-- Lista todas las incidencias que afectan nómina junto con
+-- el período de pago afectado y el empleado involucrado.  
+-- ============================================================
+
+CREATE OR REPLACE VIEW vw_incidencias_con_impacto AS
+SELECT
+    i.id_incidencia,
+    e.nombre || ' ' || e.apellido_paterno  AS empleado,
+    d.nombre_departamento,
+    i.tipo_incidencia,
+    i.fecha                                AS fecha_incidencia,
+    i.descripcion,
+    n.periodo_inicio,
+    n.periodo_fin,
+    n.salario_bruto,
+    n.salario_neto
+FROM Incidencias i
+JOIN Empleados     e ON i.id_empleado = e.id_empleado
+JOIN Departamentos d ON e.id_departamento = d.id_departamento
+LEFT JOIN Nominas  n ON i.id_nomina   = n.id_nomina
+WHERE i.impacto_nomina = 1
+ORDER BY i.fecha DESC;
+
+-- ============================================================
+-- VISTA 5: Contratos próximos a vencer (en los próximos 90 días)
+-- Alerta sobre contratos temporales o por obra que vencen
+-- pronto para que RRHH tome acción preventiva.  
+-- ============================================================
+
+CREATE OR REPLACE VIEW vw_contratos_por_vencer AS
+SELECT
+    c.id_contrato,
+    e.nombre || ' ' || e.apellido_paterno  AS empleado,
+    e.email,
+    d.nombre_departamento,
+    p.nombre_puesto,
+    c.tipo_contrato,
+    c.fecha_inicio,
+    c.fecha_fin,
+    c.fecha_fin - CURRENT_DATE              AS dias_restantes,
+    c.salario_pactado,
+    c.estatus
+FROM Contratos c
+JOIN Empleados     e ON c.id_empleado    = e.id_empleado
+JOIN Departamentos d ON e.id_departamento= d.id_departamento
+JOIN Puestos       p ON e.id_puesto      = p.id_puesto
+WHERE c.fecha_fin IS NOT NULL
+  AND c.fecha_fin BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '90 days'
+  AND c.estatus = 'activo'
+ORDER BY c.fecha_fin;
+
+-- ============================================================
+-- VISTA 6: Panel de permisos y vacaciones pendientes de aprobación
+-- Facilita al supervisor o RRHH revisar todas las solicitudes
+-- en estado pendiente con sus detalles completos.  
+-- ============================================================
+
+CREATE OR REPLACE VIEW vw_permisos_pendientes AS
+SELECT
+    vp.id_permiso,
+    e.nombre || ' ' || e.apellido_paterno              AS solicitante,
+    d.nombre_departamento,
+    vp.tipo,
+    vp.fecha_inicio,
+    vp.fecha_fin,
+    vp.dias_solicitados,
+    vp.motivo,
+    COALESCE(
+        a.nombre || ' ' || a.apellido_paterno, 'Sin asignar'
+    )                                                  AS aprobador
+FROM VacacionesPermisos vp
+JOIN Empleados     e  ON vp.id_empleado  = e.id_empleado
+JOIN Departamentos d  ON e.id_departamento = d.id_departamento
+LEFT JOIN Empleados a ON vp.id_aprobador = a.id_empleado
+WHERE vp.estatus_aprobacion = 'pendiente'
+ORDER BY vp.fecha_inicio;
+
+-- ============================================================
+-- VISTA 7: Usuarios con sus roles asignados
+-- Muestra cada usuario del sistema junto con todos los roles
+-- que tiene asignados (concatenados como lista).  
+-- ============================================================
+CREATE OR REPLACE VIEW vw_usuarios_roles AS
+SELECT
+    u.id_usuario,
+    u.username,
+    COALESCE(
+        e.nombre || ' ' || e.apellido_paterno, 'Usuario externo'
+    )                                                  AS nombre_empleado,
+    u.email,
+    u.estatus,
+    u.ultimo_acceso,
+    STRING_AGG(r.nombre_rol, ', ' ORDER BY r.nombre_rol) AS roles_asignados
+FROM Usuarios u
+LEFT JOIN Empleados  e  ON u.id_empleado = e.id_empleado
+LEFT JOIN Usuario_Rol ur ON u.id_usuario  = ur.id_usuario
+LEFT JOIN Roles       r  ON ur.id_rol     = r.id_rol
+GROUP BY u.id_usuario, u.username, nombre_empleado,
+         u.email, u.estatus, u.ultimo_acceso
+ORDER BY u.estatus, u.username;
+
+-- ============================================================
+--  VISTA 8: Actividad reciente en la bitácora (últimos 30 días)
+--   Reporte de auditoría: quién hizo qué, cuándo y desde dónde. 
+-- ============================================================
+
+CREATE OR REPLACE VIEW vw_actividad_reciente AS
+SELECT
+    bl.id_log,
+    u.username,
+    COALESCE(
+        e.nombre || ' ' || e.apellido_paterno, 'Usuario externo'
+    )                                AS nombre_usuario,
+    bl.accion,
+    bl.tabla_afectada,
+    bl.id_registro,
+    bl.fecha_hora,
+    bl.ip_origen,
+    bl.datos_anteriores,
+    bl.datos_nuevos
+FROM BitacoraLog bl
+JOIN Usuarios   u ON bl.id_usuario  = u.id_usuario
+LEFT JOIN Empleados e ON u.id_empleado = e.id_empleado
+WHERE bl.fecha_hora >= CURRENT_TIMESTAMP - INTERVAL '30 days'
+ORDER BY bl.fecha_hora DESC;
+
+--esta es para ver el nombre del cliente con la venta, y no solo el id-
+CREATE VIEW vw_reporte_ventas AS
+SELECT 
+    v.id_venta,
+    v.fecha,
+    c.nombre AS cliente,
+    v.id_empleado,
+    v.total
+FROM venta v
+JOIN cliente c ON v.id_cliente = c.id_cliente;
+
+--ventas por cliente--
+CREATE VIEW vw_ventas_cliente AS
+SELECT 
+    c.nombre,
+    COUNT(v.id_venta) AS total_compras,
+    SUM(v.total) AS total_gastado
+FROM cliente c
+JOIN venta v ON c.id_cliente = v.id_cliente
+GROUP BY c.nombre;
+
+--pagos por metodo--
+CREATE VIEW vista_metodos_pago AS
+SELECT 
+    m.nombre,
+    COUNT(p.id_pago) AS veces_usado,
+    SUM(p.monto) AS total_pagado
+FROM metodo_pago m
+JOIN pago p ON m.id_metodo_pago = p.id_metodo_pago
+GROUP BY m.nombre;
+-- Vista de ventas por cliente
+CREATE OR REPLACE VIEW vw_ventas_por_cliente AS
+SELECT 
+    c.id_cliente,
+    c.nombre AS cliente,
+    COUNT(v.id_venta) AS total_compras,
+    COALESCE(SUM(v.total),0) AS total_gastado,
+    MAX(v.fecha) AS ultima_compra
+FROM cliente c
+LEFT JOIN venta v 
+    ON c.id_cliente = v.id_cliente
+GROUP BY c.id_cliente, c.nombre;
+
+-- Vista inventario critico
+CREATE OR REPLACE VIEW vw_inventario_critico AS
+SELECT 
+    p.id_producto,
+    p.nombre AS producto,
+    i.stock_actual,
+    i.stock_minimo,
+    i.stock_maximo,
+    CASE
+        WHEN i.stock_actual = 0 THEN 'AGOTADO'
+        WHEN i.stock_actual <= i.stock_minimo THEN 'REABASTECER'
+        ELSE 'NORMAL'
+    END AS estado_stock
+FROM inventario i
+INNER JOIN producto p
+    ON i.id_producto = p.id_producto;
+
+
+-- Vista ventas por empleado
+CREATE OR REPLACE VIEW vw_ventas_empleado AS
+SELECT
+    e.id_empleado,
+    CONCAT(e.nombre,' ',e.apellido_paterno) AS empleado,
+    COUNT(v.id_venta) AS ventas_realizadas,
+    COALESCE(SUM(v.total),0) AS monto_vendido
+FROM empleados e
+LEFT JOIN venta v
+    ON e.id_empleado = v.id_empleado
+GROUP BY e.id_empleado, empleado;
+
+-- vista compras por proveedor
+CREATE OR REPLACE VIEW vw_compras_proveedor AS
+SELECT
+    p.id_proveedor,
+    p.nombre_proveedor,
+    COUNT(o.id_orden_compra) AS total_ordenes,
+    COALESCE(SUM(o.total_orden),0) AS monto_comprado
+FROM proveedor p
+LEFT JOIN orden_compra o
+    ON p.id_proveedor = o.id_proveedor
+GROUP BY p.id_proveedor, p.nombre_proveedor;
+
+-- vista nomina de apleados
+CREATE OR REPLACE VIEW vw_nomina_empleados AS
+SELECT
+    e.id_empleado,
+    CONCAT(e.nombre,' ',e.apellido_paterno) AS empleado,
+    n.periodo_inicio,
+    n.periodo_fin,
+    n.salario_bruto,
+    n.deducciones,
+    n.salario_neto,
+    n.fecha_pago
+FROM nominas n
+INNER JOIN empleados e
+    ON n.id_empleado = e.id_empleado;
+
+-- vista bitacora del sistema
+CREATE OR REPLACE VIEW vw_bitacora_sistema AS
+SELECT
+    b.id_log,
+    u.username,
+    b.accion,
+    b.tabla_afectada,
+    b.fecha_hora,
+    b.ip_origen
+FROM BitacoraLog b
+INNER JOIN Usuarios u
+    ON b.id_usuario = u.id_usuario;
+
+-- 1. Vista: Directorio Completo de Sucursales
+
+
+
+CREATE OR REPLACE VIEW vw_directorio_sucursales AS
+SELECT 
+    s.id_sucursal,
+    s.nombre AS nombre_sucursal,
+    s.telefono,
+    s.activo AS estatus_sucursal,
+    d.calle || ' #' || d.numero || COALESCE(', ' || d.colonia, '') AS direccion_completa,
+    d.codigo_postal,
+    c.nombre AS ciudad,
+    e.nombre AS estado,
+    e.abreviatura AS estado_abrev
+FROM sucursal s
+LEFT JOIN direccion d ON s.id_direccion = d.id_direccion
+LEFT JOIN ciudad c ON d.id_ciudad = c.id_ciudad
+LEFT JOIN estado e ON c.id_estado = e.id_estado;
+
+
+
+-- 2. Vista: Resumen de Capacidad Logística por Ubicación
+--Reporte gerencial agrupado por Estado y Ciudad. 
+-- Muestra cuántas sucursales y almacenes hay por zona, y suma 
+-- la capacidad total operativa (solo tomando en cuenta registros activos).
+
+CREATE OR REPLACE VIEW vw_resumen_capacidad_ubicacion AS
+SELECT 
+    e.nombre AS estado,
+    c.nombre AS ciudad,
+    COUNT(DISTINCT s.id_sucursal) AS total_sucursales,
+    COUNT(a.id_almacen) AS total_almacenes,
+    COALESCE(SUM(a.capacidad), 0) AS capacidad_total_almacenaje,
+    -- Redondeamos el promedio a 2 decimales
+    ROUND(AVG(a.capacidad), 2) AS capacidad_promedio_por_almacen
+FROM estado e
+JOIN ciudad c ON e.id_estado = c.id_estado
+LEFT JOIN direccion d ON c.id_ciudad = d.id_ciudad
+-- Filtramos desde el JOIN para solo contar infraestructura activa
+LEFT JOIN sucursal s ON d.id_direccion = s.id_direccion AND s.activo = TRUE
+LEFT JOIN almacen a ON s.id_sucursal = a.id_sucursal AND a.activo = TRUE
+GROUP BY 
+    e.nombre, 
+    c.nombre
+ORDER BY 
+    capacidad_total_almacenaje DESC;
+
+
+-- 3. Vista: Detalle Operativo de Almacenes Activos
+--Un reporte para control de inventarios. 
+--Clasifica los almacenes según su capacidad y los  vincula con su sucursal matriz y estado.
+
+CREATE OR REPLACE VIEW vw_almacenes_detalle AS
+SELECT 
+    a.id_almacen,
+    a.nombre AS nombre_almacen,
+    a.capacidad,
+    -- Lógica condicional (Reporte precompilado)
+    CASE 
+        WHEN a.capacidad >= 3000 THEN 'Alta Capacidad'
+        WHEN a.capacidad >= 1500 AND a.capacidad < 3000 THEN 'Capacidad Media'
+        ELSE 'Baja Capacidad'
+    END AS clasificacion_tamano,
+    s.nombre AS sucursal_matriz,
+    s.telefono AS contacto_sucursal,
+    e.nombre AS ubicacion_estado
+FROM almacen a
+JOIN sucursal s ON a.id_sucursal = s.id_sucursal
+JOIN direccion d ON s.id_direccion = d.id_direccion
+JOIN ciudad c ON d.id_ciudad = c.id_ciudad
+JOIN estado e ON c.id_estado = e.id_estado
+WHERE 
+    a.activo = TRUE 
+    AND s.activo = TRUE;
