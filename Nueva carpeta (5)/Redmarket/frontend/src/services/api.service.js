@@ -29,6 +29,7 @@ export const empleadosService = {
   getAll: () => api.get('/empleados'),
   getById: (id) => api.get(`/empleados/${id}`),
   create: (data) => api.post('/empleados', data),
+  getCatalogos: () => api.get('/empleados/catalogos'),
   update: (id, data) => api.put(`/empleados/${id}`, data),
   delete: (id) => api.delete(`/empleados/${id}`),
 };
@@ -68,7 +69,9 @@ export const recepcionMercanciaService = {
 export const inventarioService = {
   getAll: () => api.get('/inventario'),
   getById: (id) => api.get(`/inventario/${id}`),
+  create: (data) => api.post('/inventario', data),
   update: (id, data) => api.put(`/inventario/${id}`, data),
+  delete: (id) => api.delete(`/inventario/${id}`),
   getBajoStock: () => api.get('/inventario/bajo-stock'),
 };
 

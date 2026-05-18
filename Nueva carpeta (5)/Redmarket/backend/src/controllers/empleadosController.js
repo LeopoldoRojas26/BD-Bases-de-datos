@@ -138,11 +138,16 @@ const empleadosController = {
         nombre,
         apellido_paterno,
         apellido_materno,
+        fecha_nacimiento,
+        sexo,
+        curp,
+        rfc,
         email,
         telefono,
         id_puesto,
         id_departamento,
         id_turno,
+        fecha_ingreso,
         estatus
       } = req.body;
 
@@ -151,16 +156,36 @@ const empleadosController = {
          SET nombre = COALESCE($1, nombre),
              apellido_paterno = COALESCE($2, apellido_paterno),
              apellido_materno = COALESCE($3, apellido_materno),
-             email = COALESCE($4, email),
-             telefono = COALESCE($5, telefono),
-             id_puesto = COALESCE($6, id_puesto),
-             id_departamento = COALESCE($7, id_departamento),
-             id_turno = COALESCE($8, id_turno),
-             estatus = COALESCE($9, estatus)
-         WHERE id_empleado = $10
+             fecha_nacimiento = COALESCE($4, fecha_nacimiento),
+             sexo = COALESCE($5, sexo),
+             curp = COALESCE($6, curp),
+             rfc = COALESCE($7, rfc),
+             email = COALESCE($8, email),
+             telefono = COALESCE($9, telefono),
+             id_puesto = COALESCE($10, id_puesto),
+             id_departamento = COALESCE($11, id_departamento),
+             id_turno = COALESCE($12, id_turno),
+             fecha_ingreso = COALESCE($13, fecha_ingreso),
+             estatus = COALESCE($14, estatus)
+         WHERE id_empleado = $15
          RETURNING *`,
-        [nombre, apellido_paterno, apellido_materno, email, telefono,
-         id_puesto, id_departamento, id_turno, estatus, id]
+        [
+          nombre,
+          apellido_paterno,
+          apellido_materno,
+          fecha_nacimiento,
+          sexo,
+          curp,
+          rfc,
+          email,
+          telefono,
+          id_puesto,
+          id_departamento,
+          id_turno,
+          fecha_ingreso,
+          estatus,
+          id,
+        ]
       );
 
       if (result.rowCount === 0) {
