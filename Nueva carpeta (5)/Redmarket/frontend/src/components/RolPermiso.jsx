@@ -1,34 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { proveedoresService } from '../services/api.service';
+import { rolPermisoService } from '../services/api.service';
 import './Crud.css';
 
-const Proveedores = () => {
-  const [proveedores, setProveedores] = useState([]);
+const RolPermiso = () => {
+  const [asignaciones, setAsignaciones] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentProveedor, setCurrentProveedor] = useState(null);
+  const [currentAsignacion, setCurrentAsignacion] = useState(null);
 
   const [formData, setFormData] = useState({
-    nombre_proveedor: '',
-    telefono: '',
-    correo: '',
-    estado: 'activo'
+    id_rol: '',
+    id_permiso_sys: ''
   });
 
   useEffect(() => {
-    fetchProveedores();
+    fetchAsignaciones();
   }, []);
 
-  const fetchProveedores = async () => {
+  const fetchAsignaciones = async () => {
     try {
       setLoading(true);
-      const response = await proveedoresService.getAll();
+      const response = await rolPermisoService.getAll();
       if (response.data.success) {
-        setProveedores(response.data.data);
+        setAsignaciones(response.data.data);
       }
     } catch (err) {
-      setError('Error al cargar proveedores');
+      setError('Error al cargar asignaciones');
       console.error(err);
     } finally {
       setLoading(false);
@@ -40,22 +38,18 @@ const Proveedores = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const openModal = (proveedor = null) => {
-    if (proveedor) {
-      setCurrentProveedor(proveedor);
+  const openModal = (asignacion = null) => {
+    if (asignacion) {
+      setCurrentAsignacion(asignacion);
       setFormData({
-        nombre_proveedor: proveedor.nombre_proveedor || '',
-        telefono: proveedor.telefono || '',
-        correo: proveedor.correo || '',
-        estado: proveedor.estado || 'activo'
+        id_rol: asignacion.id_rol || '',
+        id_permiso_sys: asignacion.id_permiso_sys || ''
       });
     } else {
-      setCurrentProveedor(null);
+      setCurrentAsignacion(null);
       setFormData({
-        nombre_proveedor: '',
-        telefono: '',
-        correo: '',
-        estado: 'activo'
+        id_rol: '',
+        id_permiso_sys: ''
       });
     }
     setIsModalOpen(true);
@@ -63,42 +57,43 @@ const Proveedores = () => {
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setCurrentProveedor(null);
+    setCurrentAsignacion(null);
     setError(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (currentProveedor) {
-        await proveedoresService.update(currentProveedor.id_proveedor, formData);
+      if (currentAsignacion) {
+        await rolPermisoService.update(currentAsignacion.id_rol_permiso, formData);
       } else {
-        await proveedoresService.create(formData);
+        await rolPermisoService.create(formData);
       }
       closeModal();
-      fetchProveedores();
+      fetchAsignaciones();
     } catch (err) {
-      setError(err.response?.data?.error || 'Error al guardar proveedor');
+      setError(err.response?.data?.error || 'Error al guardar la asignación');
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('¿Estás seguro de eliminar (desactivar) este proveedor?')) {
+    if (window.confirm('¿Estás seguro de eliminar esta asignación de permiso?')) {
       try {
-        await proveedoresService.delete(id);
-        fetchProveedores();
+        await rolPermisoService.delete(id);
+        fetchAsignaciones();
       } catch (err) {
-        console.error('Error al eliminar proveedor', err);
+        alert(err.response?.data?.error || 'Error al eliminar asignación');
+        console.error('Error al eliminar asignación', err);
       }
     }
   };
 
-  if (loading) return <div style={{ padding: '2rem' }}>Cargando proveedores...</div>;
+  if (loading) return <div style={{ padding: '2rem' }}>Cargando asignaciones...</div>;
 
   return (
     <div className="crud-container" style={{ marginTop: '2rem' }}>
       <div className="crud-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <h2 style={{ fontSize: '1.5rem', color: '#1e293b' }}>Gestión de Proveedores</h2>
+        <h2 style={{ fontSize: '1.5rem', color: '#1e293b' }}>Gestión de Permisos por Rol</h2>
         <button 
           onClick={() => openModal()}
           style={{
@@ -111,7 +106,7 @@ const Proveedores = () => {
             fontWeight: 'bold'
           }}
         >
-          + Añadir Proveedor
+          + Asignar Permiso
         </button>
       </div>
 
@@ -121,42 +116,33 @@ const Proveedores = () => {
         <table className="crud-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
             <tr style={{ backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-              <th style={{ padding: '1rem' }}>ID</th>
-              <th style={{ padding: '1rem' }}>Nombre</th>
-              <th style={{ padding: '1rem' }}>Teléfono</th>
-              <th style={{ padding: '1rem' }}>Correo</th>
-              <th style={{ padding: '1rem' }}>Estado</th>
+              <th style={{ padding: '1rem' }}>ID Asignación</th>
+              <th style={{ padding: '1rem' }}>Rol</th>
+              <th style={{ padding: '1rem' }}>Permiso</th>
+              <th style={{ padding: '1rem' }}>Módulo</th>
               <th style={{ padding: '1rem' }}>Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {proveedores.map((proveedor) => (
-              <tr key={proveedor.id_proveedor} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                <td style={{ padding: '1rem' }}>{proveedor.id_proveedor}</td>
-                <td style={{ padding: '1rem', fontWeight: '500' }}>{proveedor.nombre_proveedor}</td>
-                <td style={{ padding: '1rem' }}>{proveedor.telefono || <span style={{color: '#94a3b8'}}>N/A</span>}</td>
-                <td style={{ padding: '1rem' }}>{proveedor.correo || <span style={{color: '#94a3b8'}}>N/A</span>}</td>
+            {asignaciones.map((asign) => (
+              <tr key={asign.id_rol_permiso} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                <td style={{ padding: '1rem' }}>{asign.id_rol_permiso}</td>
+                <td style={{ padding: '1rem', fontWeight: 'bold', color: '#4f46e5' }}>{asign.nombre_rol} (ID: {asign.id_rol})</td>
+                <td style={{ padding: '1rem', fontWeight: '500' }}>{asign.nombre_permiso} (ID: {asign.id_permiso_sys})</td>
                 <td style={{ padding: '1rem' }}>
-                  <span style={{
-                    padding: '0.3rem 0.6rem',
-                    borderRadius: '999px',
-                    fontSize: '0.85rem',
-                    fontWeight: 'bold',
-                    backgroundColor: proveedor.estado === 'activo' ? '#dcfce7' : '#fee2e2',
-                    color: proveedor.estado === 'activo' ? '#166534' : '#991b1b'
-                  }}>
-                    {proveedor.estado}
+                  <span style={{ backgroundColor: '#f1f5f9', padding: '0.3rem 0.6rem', borderRadius: '4px', fontSize: '0.875rem' }}>
+                    {asign.modulo}
                   </span>
                 </td>
                 <td style={{ padding: '1rem', display: 'flex', gap: '0.5rem' }}>
                   <button 
-                    onClick={() => openModal(proveedor)}
+                    onClick={() => openModal(asign)}
                     style={{ padding: '0.5rem 1rem', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                   >
                     Editar
                   </button>
                   <button 
-                    onClick={() => handleDelete(proveedor.id_proveedor)}
+                    onClick={() => handleDelete(asign.id_rol_permiso)}
                     style={{ padding: '0.5rem 1rem', backgroundColor: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                   >
                     Eliminar
@@ -164,10 +150,10 @@ const Proveedores = () => {
                 </td>
               </tr>
             ))}
-            {proveedores.length === 0 && (
+            {asignaciones.length === 0 && (
               <tr>
-                <td colSpan="6" style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>
-                  No hay proveedores registrados
+                <td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>
+                  No hay permisos asignados a roles
                 </td>
               </tr>
             )}
@@ -186,56 +172,32 @@ const Proveedores = () => {
             width: '100%', maxWidth: '500px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
           }}>
             <h3 style={{ marginTop: 0, marginBottom: '1.5rem', fontSize: '1.25rem' }}>
-              {currentProveedor ? 'Editar Proveedor' : 'Añadir Proveedor'}
+              {currentAsignacion ? 'Editar Asignación' : 'Nueva Asignación de Permiso'}
             </h3>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label style={{ fontWeight: '500', color: '#334155' }}>Nombre del Proveedor:</label>
+                <label style={{ fontWeight: '500', color: '#334155' }}>ID del Rol:</label>
                 <input
-                  type="text"
-                  name="nombre_proveedor"
-                  value={formData.nombre_proveedor}
+                  type="number"
+                  name="id_rol"
+                  value={formData.id_rol}
                   onChange={handleInputChange}
                   required
-                  maxLength={150}
                   style={{ padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
                 />
               </div>
+
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label style={{ fontWeight: '500', color: '#334155' }}>Teléfono (Opcional):</label>
+                <label style={{ fontWeight: '500', color: '#334155' }}>ID del Permiso del Sistema:</label>
                 <input
-                  type="text"
-                  name="telefono"
-                  value={formData.telefono}
+                  type="number"
+                  name="id_permiso_sys"
+                  value={formData.id_permiso_sys}
                   onChange={handleInputChange}
-                  maxLength={20}
-                  placeholder="+504 1234-5678"
+                  required
                   style={{ padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
                 />
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label style={{ fontWeight: '500', color: '#334155' }}>Correo (Opcional):</label>
-                <input
-                  type="email"
-                  name="correo"
-                  value={formData.correo}
-                  onChange={handleInputChange}
-                  maxLength={150}
-                  placeholder="proveedor@ejemplo.com"
-                  style={{ padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                />
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label style={{ fontWeight: '500', color: '#334155' }}>Estado:</label>
-                <select 
-                  name="estado" 
-                  value={formData.estado} 
-                  onChange={handleInputChange}
-                  style={{ padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                >
-                  <option value="activo">Activo</option>
-                  <option value="inactivo">Inactivo</option>
-                </select>
               </div>
               
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem' }}>
@@ -261,4 +223,4 @@ const Proveedores = () => {
   );
 };
 
-export default Proveedores;
+export default RolPermiso;

@@ -1,34 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { proveedoresService } from '../services/api.service';
+import { permisosSistemaService } from '../services/api.service';
 import './Crud.css';
 
-const Proveedores = () => {
-  const [proveedores, setProveedores] = useState([]);
+const PermisosSistema = () => {
+  const [permisos, setPermisos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentProveedor, setCurrentProveedor] = useState(null);
+  const [currentPermiso, setCurrentPermiso] = useState(null);
 
   const [formData, setFormData] = useState({
-    nombre_proveedor: '',
-    telefono: '',
-    correo: '',
-    estado: 'activo'
+    nombre_permiso: '',
+    modulo: '',
+    descripcion: ''
   });
 
   useEffect(() => {
-    fetchProveedores();
+    fetchPermisos();
   }, []);
 
-  const fetchProveedores = async () => {
+  const fetchPermisos = async () => {
     try {
       setLoading(true);
-      const response = await proveedoresService.getAll();
+      const response = await permisosSistemaService.getAll();
       if (response.data.success) {
-        setProveedores(response.data.data);
+        setPermisos(response.data.data);
       }
     } catch (err) {
-      setError('Error al cargar proveedores');
+      setError('Error al cargar permisos');
       console.error(err);
     } finally {
       setLoading(false);
@@ -40,22 +39,20 @@ const Proveedores = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const openModal = (proveedor = null) => {
-    if (proveedor) {
-      setCurrentProveedor(proveedor);
+  const openModal = (permiso = null) => {
+    if (permiso) {
+      setCurrentPermiso(permiso);
       setFormData({
-        nombre_proveedor: proveedor.nombre_proveedor || '',
-        telefono: proveedor.telefono || '',
-        correo: proveedor.correo || '',
-        estado: proveedor.estado || 'activo'
+        nombre_permiso: permiso.nombre_permiso || '',
+        modulo: permiso.modulo || '',
+        descripcion: permiso.descripcion || ''
       });
     } else {
-      setCurrentProveedor(null);
+      setCurrentPermiso(null);
       setFormData({
-        nombre_proveedor: '',
-        telefono: '',
-        correo: '',
-        estado: 'activo'
+        nombre_permiso: '',
+        modulo: '',
+        descripcion: ''
       });
     }
     setIsModalOpen(true);
@@ -63,42 +60,43 @@ const Proveedores = () => {
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setCurrentProveedor(null);
+    setCurrentPermiso(null);
     setError(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (currentProveedor) {
-        await proveedoresService.update(currentProveedor.id_proveedor, formData);
+      if (currentPermiso) {
+        await permisosSistemaService.update(currentPermiso.id_permiso_sys, formData);
       } else {
-        await proveedoresService.create(formData);
+        await permisosSistemaService.create(formData);
       }
       closeModal();
-      fetchProveedores();
+      fetchPermisos();
     } catch (err) {
-      setError(err.response?.data?.error || 'Error al guardar proveedor');
+      setError(err.response?.data?.error || 'Error al guardar el permiso');
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('¿Estás seguro de eliminar (desactivar) este proveedor?')) {
+    if (window.confirm('¿Estás seguro de eliminar este permiso del sistema?')) {
       try {
-        await proveedoresService.delete(id);
-        fetchProveedores();
+        await permisosSistemaService.delete(id);
+        fetchPermisos();
       } catch (err) {
-        console.error('Error al eliminar proveedor', err);
+        alert(err.response?.data?.error || 'Error al eliminar permiso');
+        console.error('Error al eliminar permiso', err);
       }
     }
   };
 
-  if (loading) return <div style={{ padding: '2rem' }}>Cargando proveedores...</div>;
+  if (loading) return <div style={{ padding: '2rem' }}>Cargando permisos...</div>;
 
   return (
     <div className="crud-container" style={{ marginTop: '2rem' }}>
       <div className="crud-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <h2 style={{ fontSize: '1.5rem', color: '#1e293b' }}>Gestión de Proveedores</h2>
+        <h2 style={{ fontSize: '1.5rem', color: '#1e293b' }}>Gestión de Permisos del Sistema</h2>
         <button 
           onClick={() => openModal()}
           style={{
@@ -111,7 +109,7 @@ const Proveedores = () => {
             fontWeight: 'bold'
           }}
         >
-          + Añadir Proveedor
+          + Añadir Permiso
         </button>
       </div>
 
@@ -122,41 +120,32 @@ const Proveedores = () => {
           <thead>
             <tr style={{ backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
               <th style={{ padding: '1rem' }}>ID</th>
-              <th style={{ padding: '1rem' }}>Nombre</th>
-              <th style={{ padding: '1rem' }}>Teléfono</th>
-              <th style={{ padding: '1rem' }}>Correo</th>
-              <th style={{ padding: '1rem' }}>Estado</th>
+              <th style={{ padding: '1rem' }}>Nombre Permiso</th>
+              <th style={{ padding: '1rem' }}>Módulo</th>
+              <th style={{ padding: '1rem' }}>Descripción</th>
               <th style={{ padding: '1rem' }}>Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {proveedores.map((proveedor) => (
-              <tr key={proveedor.id_proveedor} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                <td style={{ padding: '1rem' }}>{proveedor.id_proveedor}</td>
-                <td style={{ padding: '1rem', fontWeight: '500' }}>{proveedor.nombre_proveedor}</td>
-                <td style={{ padding: '1rem' }}>{proveedor.telefono || <span style={{color: '#94a3b8'}}>N/A</span>}</td>
-                <td style={{ padding: '1rem' }}>{proveedor.correo || <span style={{color: '#94a3b8'}}>N/A</span>}</td>
+            {permisos.map((permiso) => (
+              <tr key={permiso.id_permiso_sys} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                <td style={{ padding: '1rem' }}>{permiso.id_permiso_sys}</td>
+                <td style={{ padding: '1rem', fontWeight: 'bold', color: '#4f46e5' }}>{permiso.nombre_permiso}</td>
                 <td style={{ padding: '1rem' }}>
-                  <span style={{
-                    padding: '0.3rem 0.6rem',
-                    borderRadius: '999px',
-                    fontSize: '0.85rem',
-                    fontWeight: 'bold',
-                    backgroundColor: proveedor.estado === 'activo' ? '#dcfce7' : '#fee2e2',
-                    color: proveedor.estado === 'activo' ? '#166534' : '#991b1b'
-                  }}>
-                    {proveedor.estado}
+                  <span style={{ backgroundColor: '#f1f5f9', padding: '0.3rem 0.6rem', borderRadius: '4px', fontSize: '0.875rem' }}>
+                    {permiso.modulo}
                   </span>
                 </td>
+                <td style={{ padding: '1rem' }}>{permiso.descripcion || <span style={{color: '#94a3b8'}}>N/A</span>}</td>
                 <td style={{ padding: '1rem', display: 'flex', gap: '0.5rem' }}>
                   <button 
-                    onClick={() => openModal(proveedor)}
+                    onClick={() => openModal(permiso)}
                     style={{ padding: '0.5rem 1rem', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                   >
                     Editar
                   </button>
                   <button 
-                    onClick={() => handleDelete(proveedor.id_proveedor)}
+                    onClick={() => handleDelete(permiso.id_permiso_sys)}
                     style={{ padding: '0.5rem 1rem', backgroundColor: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                   >
                     Eliminar
@@ -164,10 +153,10 @@ const Proveedores = () => {
                 </td>
               </tr>
             ))}
-            {proveedores.length === 0 && (
+            {permisos.length === 0 && (
               <tr>
-                <td colSpan="6" style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>
-                  No hay proveedores registrados
+                <td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>
+                  No hay permisos registrados en el sistema
                 </td>
               </tr>
             )}
@@ -186,56 +175,45 @@ const Proveedores = () => {
             width: '100%', maxWidth: '500px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
           }}>
             <h3 style={{ marginTop: 0, marginBottom: '1.5rem', fontSize: '1.25rem' }}>
-              {currentProveedor ? 'Editar Proveedor' : 'Añadir Proveedor'}
+              {currentPermiso ? 'Editar Permiso' : 'Añadir Permiso'}
             </h3>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label style={{ fontWeight: '500', color: '#334155' }}>Nombre del Proveedor:</label>
+                <label style={{ fontWeight: '500', color: '#334155' }}>Nombre del Permiso:</label>
                 <input
                   type="text"
-                  name="nombre_proveedor"
-                  value={formData.nombre_proveedor}
+                  name="nombre_permiso"
+                  value={formData.nombre_permiso}
                   onChange={handleInputChange}
                   required
-                  maxLength={150}
+                  placeholder="ej. CREAR_USUARIO"
                   style={{ padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
                 />
               </div>
+
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label style={{ fontWeight: '500', color: '#334155' }}>Teléfono (Opcional):</label>
+                <label style={{ fontWeight: '500', color: '#334155' }}>Módulo:</label>
                 <input
                   type="text"
-                  name="telefono"
-                  value={formData.telefono}
+                  name="modulo"
+                  value={formData.modulo}
                   onChange={handleInputChange}
-                  maxLength={20}
-                  placeholder="+504 1234-5678"
+                  required
+                  placeholder="ej. Usuarios"
                   style={{ padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
                 />
               </div>
+
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label style={{ fontWeight: '500', color: '#334155' }}>Correo (Opcional):</label>
-                <input
-                  type="email"
-                  name="correo"
-                  value={formData.correo}
+                <label style={{ fontWeight: '500', color: '#334155' }}>Descripción (Opcional):</label>
+                <textarea
+                  name="descripcion"
+                  value={formData.descripcion}
                   onChange={handleInputChange}
-                  maxLength={150}
-                  placeholder="proveedor@ejemplo.com"
-                  style={{ padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                  rows="3"
+                  style={{ padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1', resize: 'vertical' }}
                 />
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label style={{ fontWeight: '500', color: '#334155' }}>Estado:</label>
-                <select 
-                  name="estado" 
-                  value={formData.estado} 
-                  onChange={handleInputChange}
-                  style={{ padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                >
-                  <option value="activo">Activo</option>
-                  <option value="inactivo">Inactivo</option>
-                </select>
               </div>
               
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem' }}>
@@ -261,4 +239,4 @@ const Proveedores = () => {
   );
 };
 
-export default Proveedores;
+export default PermisosSistema;

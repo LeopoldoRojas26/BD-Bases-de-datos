@@ -17,6 +17,16 @@ const pagosRoutes = require('./routes/pagos');
 const facturaRoutes = require('./routes/factura');
 const devolucionRoutes = require('./routes/devolucion');
 const sucursalesRoutes = require('./routes/sucursales');
+const usuariosRoutes = require('./routes/usuarios');
+const rolesRoutes = require('./routes/roles');
+const usuarioRolRoutes = require('./routes/usuarioRol');
+const permisosSistemaRoutes = require('./routes/permisosSistema');
+const rolPermisoRoutes = require('./routes/rolPermiso');
+const bitacoraRoutes = require('./routes/bitacora');
+const sesionesRoutes = require('./routes/sesiones');
+const ordenCompraRoutes = require('./routes/ordenCompra');
+const detalleOrdenCompraRoutes = require('./routes/detalleOrdenCompra');
+const recepcionMercanciaRoutes = require('./routes/recepcionMercancia');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -43,7 +53,17 @@ app.get('/', (req, res) => {
       pagos: '/api/pagos',
       factura: '/api/factura',
       devolucion: '/api/devolucion',
-      sucursales: '/api/sucursales'
+      sucursales: '/api/sucursales',
+      usuarios: '/api/usuarios',
+      roles: '/api/roles',
+      usuario_rol: '/api/usuario-rol',
+      permisos_sistema: '/api/permisos-sistema',
+      rol_permiso: '/api/rol-permiso',
+      bitacora: '/api/bitacora',
+      sesiones: '/api/sesiones',
+      orden_compra: '/api/orden-compra',
+      detalle_orden_compra: '/api/detalle-orden-compra',
+      recepcion_mercancia: '/api/recepcion-mercancia'
     }
   });
 });
@@ -80,6 +100,16 @@ app.use('/api/pagos', pagosRoutes);
 app.use('/api/factura', facturaRoutes);
 app.use('/api/devolucion', devolucionRoutes);
 app.use('/api/sucursales', sucursalesRoutes);
+app.use('/api/usuarios', usuariosRoutes);
+app.use('/api/roles', rolesRoutes);
+app.use('/api/usuario-rol', usuarioRolRoutes);
+app.use('/api/permisos-sistema', permisosSistemaRoutes);
+app.use('/api/rol-permiso', rolPermisoRoutes);
+app.use('/api/bitacora', bitacoraRoutes);
+app.use('/api/sesiones', sesionesRoutes);
+app.use('/api/orden-compra', ordenCompraRoutes);
+app.use('/api/detalle-orden-compra', detalleOrdenCompraRoutes);
+app.use('/api/recepcion-mercancia', recepcionMercanciaRoutes);
 
 // Manejo de errores 404
 app.use((req, res) => {
@@ -118,6 +148,16 @@ app.listen(PORT, () => {
   console.log(`   - factura: http://localhost:${PORT}/api/factura`);
   console.log(`   - devolucion: http://localhost:${PORT}/api/devolucion`);
   console.log(`   - Sucursales: http://localhost:${PORT}/api/sucursales`);
+  console.log(`   - Usuarios:   http://localhost:${PORT}/api/usuarios`);
+  console.log(`   - Roles:      http://localhost:${PORT}/api/roles`);
+  console.log(`   - Usuario Rol: http://localhost:${PORT}/api/usuario-rol`);
+  console.log(`   - Permisos:   http://localhost:${PORT}/api/permisos-sistema`);
+  console.log(`   - Rol Permiso: http://localhost:${PORT}/api/rol-permiso`);
+  console.log(`   - Bitácora:   http://localhost:${PORT}/api/bitacora`);
+  console.log(`   - Sesiones:   http://localhost:${PORT}/api/sesiones`);
+  console.log(`   - Orden Compra: http://localhost:${PORT}/api/orden-compra`);
+  console.log(`   - Detalle Orden: http://localhost:${PORT}/api/detalle-orden-compra`);
+  console.log(`   - Recepción:  http://localhost:${PORT}/api/recepcion-mercancia`);
 });
 
 // Manejo de cierre graceful

@@ -1,34 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { proveedoresService } from '../services/api.service';
+import { usuariosService } from '../services/api.service';
 import './Crud.css';
 
-const Proveedores = () => {
-  const [proveedores, setProveedores] = useState([]);
+const Usuarios = () => {
+  const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentProveedor, setCurrentProveedor] = useState(null);
+  const [currentUsuario, setCurrentUsuario] = useState(null);
 
   const [formData, setFormData] = useState({
-    nombre_proveedor: '',
-    telefono: '',
-    correo: '',
-    estado: 'activo'
+    id_empleado: '',
+    username: '',
+    password: '',
+    email: '',
+    estatus: 'activo'
   });
 
   useEffect(() => {
-    fetchProveedores();
+    fetchUsuarios();
   }, []);
 
-  const fetchProveedores = async () => {
+  const fetchUsuarios = async () => {
     try {
       setLoading(true);
-      const response = await proveedoresService.getAll();
+      const response = await usuariosService.getAll();
       if (response.data.success) {
-        setProveedores(response.data.data);
+        setUsuarios(response.data.data);
       }
     } catch (err) {
-      setError('Error al cargar proveedores');
+      setError('Error al cargar usuarios');
       console.error(err);
     } finally {
       setLoading(false);
@@ -40,22 +41,24 @@ const Proveedores = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const openModal = (proveedor = null) => {
-    if (proveedor) {
-      setCurrentProveedor(proveedor);
+  const openModal = (usuario = null) => {
+    if (usuario) {
+      setCurrentUsuario(usuario);
       setFormData({
-        nombre_proveedor: proveedor.nombre_proveedor || '',
-        telefono: proveedor.telefono || '',
-        correo: proveedor.correo || '',
-        estado: proveedor.estado || 'activo'
+        id_empleado: usuario.id_empleado || '',
+        username: usuario.username || '',
+        password: '', 
+        email: usuario.email || '',
+        estatus: usuario.estatus || 'activo'
       });
     } else {
-      setCurrentProveedor(null);
+      setCurrentUsuario(null);
       setFormData({
-        nombre_proveedor: '',
-        telefono: '',
-        correo: '',
-        estado: 'activo'
+        id_empleado: '',
+        username: '',
+        password: '',
+        email: '',
+        estatus: 'activo'
       });
     }
     setIsModalOpen(true);
@@ -63,42 +66,42 @@ const Proveedores = () => {
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setCurrentProveedor(null);
+    setCurrentUsuario(null);
     setError(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (currentProveedor) {
-        await proveedoresService.update(currentProveedor.id_proveedor, formData);
+      if (currentUsuario) {
+        await usuariosService.update(currentUsuario.id_usuario, formData);
       } else {
-        await proveedoresService.create(formData);
+        await usuariosService.create(formData);
       }
       closeModal();
-      fetchProveedores();
+      fetchUsuarios();
     } catch (err) {
-      setError(err.response?.data?.error || 'Error al guardar proveedor');
+      setError(err.response?.data?.error || 'Error al guardar usuario');
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('¿Estás seguro de eliminar (desactivar) este proveedor?')) {
+    if (window.confirm('¿Estás seguro de eliminar (desactivar) este usuario?')) {
       try {
-        await proveedoresService.delete(id);
-        fetchProveedores();
+        await usuariosService.delete(id);
+        fetchUsuarios();
       } catch (err) {
-        console.error('Error al eliminar proveedor', err);
+        console.error('Error al eliminar usuario', err);
       }
     }
   };
 
-  if (loading) return <div style={{ padding: '2rem' }}>Cargando proveedores...</div>;
+  if (loading) return <div style={{ padding: '2rem' }}>Cargando usuarios...</div>;
 
   return (
     <div className="crud-container" style={{ marginTop: '2rem' }}>
       <div className="crud-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <h2 style={{ fontSize: '1.5rem', color: '#1e293b' }}>Gestión de Proveedores</h2>
+        <h2 style={{ fontSize: '1.5rem', color: '#1e293b' }}>Gestión de Usuarios</h2>
         <button 
           onClick={() => openModal()}
           style={{
@@ -111,7 +114,7 @@ const Proveedores = () => {
             fontWeight: 'bold'
           }}
         >
-          + Añadir Proveedor
+          + Añadir Usuario
         </button>
       </div>
 
@@ -122,41 +125,41 @@ const Proveedores = () => {
           <thead>
             <tr style={{ backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
               <th style={{ padding: '1rem' }}>ID</th>
-              <th style={{ padding: '1rem' }}>Nombre</th>
-              <th style={{ padding: '1rem' }}>Teléfono</th>
-              <th style={{ padding: '1rem' }}>Correo</th>
-              <th style={{ padding: '1rem' }}>Estado</th>
+              <th style={{ padding: '1rem' }}>Username</th>
+              <th style={{ padding: '1rem' }}>Email</th>
+              <th style={{ padding: '1rem' }}>Empleado</th>
+              <th style={{ padding: '1rem' }}>Estatus</th>
               <th style={{ padding: '1rem' }}>Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {proveedores.map((proveedor) => (
-              <tr key={proveedor.id_proveedor} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                <td style={{ padding: '1rem' }}>{proveedor.id_proveedor}</td>
-                <td style={{ padding: '1rem', fontWeight: '500' }}>{proveedor.nombre_proveedor}</td>
-                <td style={{ padding: '1rem' }}>{proveedor.telefono || <span style={{color: '#94a3b8'}}>N/A</span>}</td>
-                <td style={{ padding: '1rem' }}>{proveedor.correo || <span style={{color: '#94a3b8'}}>N/A</span>}</td>
+            {usuarios.map((usuario) => (
+              <tr key={usuario.id_usuario} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                <td style={{ padding: '1rem' }}>{usuario.id_usuario}</td>
+                <td style={{ padding: '1rem', fontWeight: '500' }}>{usuario.username}</td>
+                <td style={{ padding: '1rem' }}>{usuario.email}</td>
+                <td style={{ padding: '1rem' }}>{usuario.empleado_nombre || usuario.id_empleado || <span style={{color: '#94a3b8'}}>N/A</span>}</td>
                 <td style={{ padding: '1rem' }}>
                   <span style={{
                     padding: '0.3rem 0.6rem',
                     borderRadius: '999px',
                     fontSize: '0.85rem',
                     fontWeight: 'bold',
-                    backgroundColor: proveedor.estado === 'activo' ? '#dcfce7' : '#fee2e2',
-                    color: proveedor.estado === 'activo' ? '#166534' : '#991b1b'
+                    backgroundColor: usuario.estatus === 'activo' ? '#dcfce7' : '#fee2e2',
+                    color: usuario.estatus === 'activo' ? '#166534' : '#991b1b'
                   }}>
-                    {proveedor.estado}
+                    {usuario.estatus}
                   </span>
                 </td>
                 <td style={{ padding: '1rem', display: 'flex', gap: '0.5rem' }}>
                   <button 
-                    onClick={() => openModal(proveedor)}
+                    onClick={() => openModal(usuario)}
                     style={{ padding: '0.5rem 1rem', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                   >
                     Editar
                   </button>
                   <button 
-                    onClick={() => handleDelete(proveedor.id_proveedor)}
+                    onClick={() => handleDelete(usuario.id_usuario)}
                     style={{ padding: '0.5rem 1rem', backgroundColor: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                   >
                     Eliminar
@@ -164,10 +167,10 @@ const Proveedores = () => {
                 </td>
               </tr>
             ))}
-            {proveedores.length === 0 && (
+            {usuarios.length === 0 && (
               <tr>
                 <td colSpan="6" style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>
-                  No hay proveedores registrados
+                  No hay usuarios registrados
                 </td>
               </tr>
             )}
@@ -186,55 +189,65 @@ const Proveedores = () => {
             width: '100%', maxWidth: '500px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
           }}>
             <h3 style={{ marginTop: 0, marginBottom: '1.5rem', fontSize: '1.25rem' }}>
-              {currentProveedor ? 'Editar Proveedor' : 'Añadir Proveedor'}
+              {currentUsuario ? 'Editar Usuario' : 'Añadir Usuario'}
             </h3>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label style={{ fontWeight: '500', color: '#334155' }}>Nombre del Proveedor:</label>
+                <label style={{ fontWeight: '500', color: '#334155' }}>ID Empleado (Opcional):</label>
+                <input
+                  type="number"
+                  name="id_empleado"
+                  value={formData.id_empleado}
+                  onChange={handleInputChange}
+                  style={{ padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <label style={{ fontWeight: '500', color: '#334155' }}>Username:</label>
                 <input
                   type="text"
-                  name="nombre_proveedor"
-                  value={formData.nombre_proveedor}
+                  name="username"
+                  value={formData.username}
                   onChange={handleInputChange}
                   required
-                  maxLength={150}
                   style={{ padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
                 />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label style={{ fontWeight: '500', color: '#334155' }}>Teléfono (Opcional):</label>
-                <input
-                  type="text"
-                  name="telefono"
-                  value={formData.telefono}
-                  onChange={handleInputChange}
-                  maxLength={20}
-                  placeholder="+504 1234-5678"
-                  style={{ padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                />
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label style={{ fontWeight: '500', color: '#334155' }}>Correo (Opcional):</label>
+                <label style={{ fontWeight: '500', color: '#334155' }}>Email:</label>
                 <input
                   type="email"
-                  name="correo"
-                  value={formData.correo}
+                  name="email"
+                  value={formData.email}
                   onChange={handleInputChange}
-                  maxLength={150}
-                  placeholder="proveedor@ejemplo.com"
+                  required
                   style={{ padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
                 />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label style={{ fontWeight: '500', color: '#334155' }}>Estado:</label>
+                <label style={{ fontWeight: '500', color: '#334155' }}>
+                  {currentUsuario ? 'Nueva Contraseña (dejar en blanco para no cambiar):' : 'Contraseña:'}
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  required={!currentUsuario}
+                  style={{ padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <label style={{ fontWeight: '500', color: '#334155' }}>Estatus:</label>
                 <select 
-                  name="estado" 
-                  value={formData.estado} 
+                  name="estatus" 
+                  value={formData.estatus} 
                   onChange={handleInputChange}
                   style={{ padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
                 >
                   <option value="activo">Activo</option>
                   <option value="inactivo">Inactivo</option>
+                  <option value="bloqueado">Bloqueado</option>
                 </select>
               </div>
               
@@ -261,4 +274,4 @@ const Proveedores = () => {
   );
 };
 
-export default Proveedores;
+export default Usuarios;
