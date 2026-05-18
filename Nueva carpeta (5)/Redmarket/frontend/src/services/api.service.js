@@ -67,7 +67,9 @@ export const recepcionMercanciaService = {
 export const inventarioService = {
   getAll: () => api.get('/inventario'),
   getById: (id) => api.get(`/inventario/${id}`),
+  create: (data) => api.post('/inventario', data),
   update: (id, data) => api.put(`/inventario/${id}`, data),
+  delete: (id) => api.delete(`/inventario/${id}`),
   getBajoStock: () => api.get('/inventario/bajo-stock'),
 };
 
