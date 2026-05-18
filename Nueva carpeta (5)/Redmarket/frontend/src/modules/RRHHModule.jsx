@@ -28,6 +28,7 @@ const RRHHModule = () => {
     id_departamento: "",
     id_turno: "",
     fecha_ingreso: "",
+    estatus: "activo",
   });
 
   const fetchEmpleados = async () => {
@@ -69,6 +70,7 @@ const RRHHModule = () => {
       id_departamento: "",
       id_turno: "",
       fecha_ingreso: "",
+      estatus: "activo",
     });
   };
 
@@ -253,6 +255,36 @@ const RRHHModule = () => {
               </div>
 
               <div className="form-group">
+                <label>Fecha de nacimiento *</label>
+                <input
+                  type="date"
+                  value={formData.fecha_nacimiento}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      fecha_nacimiento: e.target.value,
+                    })
+                  }
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Sexo *</label>
+                <select
+                  value={formData.sexo}
+                  onChange={(e) =>
+                    setFormData({ ...formData, sexo: e.target.value })
+                  }
+                  required
+                >
+                  <option value="">Seleccionar sexo</option>
+                  <option value="M">M</option>
+                  <option value="F">F</option>
+                </select>
+              </div>
+
+              <div className="form-group">
                 <label>CURP *</label>
                 <input
                   type="text"
@@ -350,6 +382,32 @@ const RRHHModule = () => {
                       {t.nombre_turno}
                     </option>
                   ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>Fecha de ingreso *</label>
+                <input
+                  type="date"
+                  value={formData.fecha_ingreso}
+                  onChange={(e) =>
+                    setFormData({ ...formData, fecha_ingreso: e.target.value })
+                  }
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Estatus *</label>
+                <select
+                  value={formData.estatus}
+                  onChange={(e) =>
+                    setFormData({ ...formData, estatus: e.target.value })
+                  }
+                  required
+                >
+                  <option value="activo">activo</option>
+                  <option value="inactivo">inactivo</option>
                 </select>
               </div>
 

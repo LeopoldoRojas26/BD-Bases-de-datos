@@ -27,6 +27,7 @@ export const empleadosService = {
   getAll: () => api.get('/empleados'),
   getById: (id) => api.get(`/empleados/${id}`),
   create: (data) => api.post('/empleados', data),
+  getCatalogos: () => api.get('/empleados/catalogos'),
   update: (id, data) => api.put(`/empleados/${id}`, data),
   delete: (id) => api.delete(`/empleados/${id}`),
 };
