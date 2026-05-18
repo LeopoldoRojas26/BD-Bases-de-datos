@@ -8,6 +8,8 @@ const RRHHModule = () => {
   const [busqueda, setBusqueda] = useState("");
 
   const [showModal, setShowModal] = useState(false);
+  const [modalMode, setModalMode] = useState("create");
+  const [editingEmpleadoId, setEditingEmpleadoId] = useState(null);
   const [catalogos, setCatalogos] = useState({
     puestos: [],
     departamentos: [],
@@ -30,6 +32,19 @@ const RRHHModule = () => {
     fecha_ingreso: "",
     estatus: "activo",
   });
+
+  const normalizeDateInputValue = (value) => {
+    if (!value) return "";
+    if (typeof value === "string") {
+      if (value.includes("T")) return value.split("T")[0];
+      return value;
+    }
+    try {
+      return new Date(value).toISOString().slice(0, 10);
+    } catch {
+      return "";
+    }
+  };
 
   const fetchEmpleados = async () => {
     try {
@@ -74,10 +89,55 @@ const RRHHModule = () => {
     });
   };
 
+  const closeModal = () => {
+    setShowModal(false);
+    setModalMode("create");
+    setEditingEmpleadoId(null);
+    resetForm();
+  };
+
   const openCreateModal = async () => {
     await fetchCatalogos();
     resetForm();
+    setModalMode("create");
+    setEditingEmpleadoId(null);
     setShowModal(true);
+  };
+
+  const openEditModal = async (empleado) => {
+    try {
+      await fetchCatalogos();
+
+      const empleadoId = empleado.id_empleado;
+      const response = await empleadosService.getById(empleadoId);
+      const empleadoFull = response.data.data || response.data;
+
+      setFormData({
+        nombre: empleadoFull.nombre || "",
+        apellido_paterno: empleadoFull.apellido_paterno || "",
+        apellido_materno: empleadoFull.apellido_materno || "",
+        fecha_nacimiento: normalizeDateInputValue(empleadoFull.fecha_nacimiento),
+        sexo: empleadoFull.sexo || "",
+        curp: empleadoFull.curp || "",
+        rfc: empleadoFull.rfc || "",
+        email: empleadoFull.email || "",
+        telefono: empleadoFull.telefono || "",
+        id_puesto: empleadoFull.id_puesto ? String(empleadoFull.id_puesto) : "",
+        id_departamento: empleadoFull.id_departamento
+          ? String(empleadoFull.id_departamento)
+          : "",
+        id_turno: empleadoFull.id_turno ? String(empleadoFull.id_turno) : "",
+        fecha_ingreso: normalizeDateInputValue(empleadoFull.fecha_ingreso),
+        estatus: empleadoFull.estatus || "activo",
+      });
+
+      setModalMode("edit");
+      setEditingEmpleadoId(empleadoId);
+      setShowModal(true);
+    } catch (err) {
+      const errorMsg = err.response?.data?.error || err.message;
+      alert("❌ Error al cargar empleado para editar: " + errorMsg);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -91,14 +151,27 @@ const RRHHModule = () => {
         id_turno: parseInt(formData.id_turno),
       };
 
+      if (modalMode === "edit") {
+        if (!editingEmpleadoId) {
+          throw new Error("No se encontró el ID del empleado a editar");
+        }
+        await empleadosService.update(editingEmpleadoId, payload);
+        await fetchEmpleados();
+        closeModal();
+        alert("✅ Empleado actualizado exitosamente");
+        return;
+      }
+
       await empleadosService.create(payload);
       await fetchEmpleados();
-      setShowModal(false);
-      resetForm();
+      closeModal();
       alert("✅ Empleado creado exitosamente");
     } catch (err) {
       const errorMsg = err.response?.data?.error || err.message;
-      alert("❌ Error al crear empleado: " + errorMsg);
+      alert(
+        `❌ Error al ${modalMode === "edit" ? "actualizar" : "crear"} empleado: ` +
+          errorMsg
+      );
     }
   };
 
@@ -202,6 +275,16 @@ const RRHHModule = () => {
                 >
                   {e.estatus.toUpperCase()}
                 </span>
+
+                <div style={{ marginTop: "12px", display: "flex", gap: "8px" }}>
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={() => openEditModal(e)}
+                  >
+                    Editar
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -209,15 +292,9 @@ const RRHHModule = () => {
       )}
 
       {showModal && (
-        <div
-          className="modal-overlay"
-          onClick={() => {
-            setShowModal(false);
-            resetForm();
-          }}
-        >
+        <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2>Nuevo Empleado</h2>
+            <h2>{modalMode === "edit" ? "Editar Empleado" : "Nuevo Empleado"}</h2>
             <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label>Nombre *</label>
@@ -413,15 +490,12 @@ const RRHHModule = () => {
 
               <div className="modal-actions">
                 <button type="submit" className="btn-primary">
-                  Guardar
+                  {modalMode === "edit" ? "Actualizar" : "Guardar"}
                 </button>
                 <button
                   type="button"
                   className="btn-secondary"
-                  onClick={() => {
-                    setShowModal(false);
-                    resetForm();
-                  }}
+                  onClick={closeModal}
                 >
                   Cancelar
                 </button>
