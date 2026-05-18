@@ -56,12 +56,14 @@ const Clientes = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('¿Eliminar cliente?')) {
+    if (window.confirm('¿Estás seguro de que deseas eliminar este cliente?')) {
       try {
         await clientesService.delete(id);
         fetchClientes();
+        alert("✅ Cliente eliminado exitosamente.");
       } catch (err) {
-        alert('Error: ' + err.message);
+        console.error(err);
+        alert('❌ No se puede eliminar este cliente porque ya tiene compras registradas en el historial de ventas.');
       }
     }
   };

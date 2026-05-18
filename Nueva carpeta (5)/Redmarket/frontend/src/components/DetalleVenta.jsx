@@ -12,6 +12,10 @@ const DetalleVenta = () => {
   const [detalles, setDetalles] = useState([]);
   const [ventas, setVentas] = useState([]);
   const [productos, setProductos] = useState([]);
+  const [sessionReturned, setSessionReturned] = useState(() => {
+    const saved = localStorage.getItem('returnedSales');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -109,13 +113,6 @@ const DetalleVenta = () => {
 
         <h1>📦 Detalle de Venta</h1>
 
-        <button
-          className="btn-primary"
-          onClick={() => setShowModal(true)}
-        >
-          + Nuevo Detalle
-        </button>
-
       </div>
 
       <table className="crud-table">
@@ -140,11 +137,15 @@ const DetalleVenta = () => {
               <td>{d.id_detalle}</td>
 
               <td>
-                Venta #{d.id_venta}
+                Venta #{d.id_venta} {sessionReturned.includes(d.id_venta) && (
+                  <span style={{ color: '#e74c3c', fontWeight: 'bold', marginLeft: '8px' }}>
+                    (Devuelta)
+                  </span>
+                )}
               </td>
 
               <td>
-                Producto #{d.id_producto}
+                {productos.find(p => p.id_producto === d.id_producto)?.nombre || `Producto #${d.id_producto}`}
               </td>
 
               <td>{d.cantidad}</td>

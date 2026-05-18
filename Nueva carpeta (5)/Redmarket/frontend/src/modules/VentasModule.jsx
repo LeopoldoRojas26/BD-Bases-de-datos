@@ -5,108 +5,91 @@ import Ventas from "../components/Ventas";
 import MetodosPago from "../components/MetodosPago";
 
 import Pagos from "../components/Pagos";
-import Factura from "../components/Factura";
+
 import Devolucion from "../components/Devolucion";
 import DetalleVenta from "../components/DetalleVenta";
 
 import "./Module.css";
 
 const VentasModule = () => {
+  const [activeTab, setActiveTab] = useState(null);
 
-  const [tab, setTab] = useState("clientes");
-
-  const renderTab = () => {
-
-    switch (tab) {
-
-      case "clientes":
-        return <Clientes />;
-
-      case "ventas":
-        return <Ventas />;
-
-      case "metodos":
-        return <MetodosPago />;
-
-      case "pagos":
-        return <Pagos />;
-
-      case "factura":
-        return <Factura />;
-
-      case "devolucion":
-        return <Devolucion />;
-
-      case "detalle":
-        return <DetalleVenta />;
-
-      default:
-        return <Clientes />;
-    }
-  };
+  const tabs = [
+    { id: 'clientes', label: 'Clientes' },
+    { id: 'ventas', label: 'Ventas' },
+    { id: 'detalle', label: 'Detalle Venta' },
+    { id: 'metodos', label: 'Métodos de Pago' },
+    { id: 'pagos', label: 'Pagos' },
+    { id: 'devolucion', label: 'Devoluciones' },
+  ];
 
   return (
-    <div className="module-container">
+    <div style={{ padding: '2rem', fontFamily: 'system-ui, sans-serif', maxWidth: '1200px', margin: '0 auto' }}>
+      <h1 style={{
+        fontSize: '2.5rem',
+        fontWeight: 'bold',
+        marginBottom: '2rem',
+        color: '#1e293b',
+        borderBottom: '2px solid #e2e8f0',
+        paddingBottom: '0.5rem'
+      }}>
+        Módulo de Ventas
+      </h1>
 
-      <h1>Módulo de Ventas</h1>
+      <p style={{ marginBottom: '2rem', color: '#64748b', fontSize: '1.1rem' }}>
+        Elige una opción
+      </p>
 
-      <div className="tabs">
-
-        <button
-          className={tab === "clientes" ? "active" : ""}
-          onClick={() => setTab("clientes")}
-        >
-          Clientes
-        </button>
-
-        <button
-          className={tab === "ventas" ? "active" : ""}
-          onClick={() => setTab("ventas")}
-        >
-          Ventas
-        </button>
-
-        <button
-          className={tab === "detalle" ? "active" : ""}
-          onClick={() => setTab("detalle")}
-        >
-          Detalle Venta
-        </button>
-
-        <button
-          className={tab === "metodos" ? "active" : ""}
-          onClick={() => setTab("metodos")}
-        >
-          Métodos de Pago
-        </button>
-
-        <button
-          className={tab === "pagos" ? "active" : ""}
-          onClick={() => setTab("pagos")}
-        >
-          Pagos
-        </button>
-
-        <button
-          className={tab === "factura" ? "active" : ""}
-          onClick={() => setTab("factura")}
-        >
-          Facturas
-        </button>
-
-        <button
-          className={tab === "devolucion" ? "active" : ""}
-          onClick={() => setTab("devolucion")}
-        >
-          Devoluciones
-        </button>
-
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+        gap: '1.5rem'
+      }}>
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            style={{
+              padding: '1.2rem',
+              backgroundColor: '#4f46e5',
+              color: 'white',
+              border: 'none',
+              borderRadius: '12px',
+              fontSize: '1.1rem',
+              fontWeight: '600',
+              cursor: 'pointer',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+              transition: 'all 0.2s ease-in-out',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              textTransform: 'capitalize'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.backgroundColor = '#4338ca';
+              e.currentTarget.style.transform = 'translateY(-3px)';
+              e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.backgroundColor = '#4f46e5';
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
+            }}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
-      <div className="tab-content">
-        {renderTab()}
-      </div>
+      <div style={{ marginTop: '2rem' }}>
+        {activeTab === 'clientes' && <Clientes />}
+        {activeTab === 'ventas' && <Ventas />}
+        {activeTab === 'detalle' && <DetalleVenta />}
+        {activeTab === 'metodos' && <MetodosPago />}
+        {activeTab === 'pagos' && <Pagos />}
 
+        {activeTab === 'devolucion' && <Devolucion />}
+      </div>
     </div>
   );
 };

@@ -5,6 +5,7 @@ const ventasController = require('../controllers/ventasController');
 router.get('/', ventasController.obtenerTodas);
 router.get('/:id', ventasController.obtenerPorId);
 router.post('/', ventasController.crear);
+router.put('/:id', ventasController.actualizar);
 router.delete('/:id', ventasController.eliminar);
 
 module.exports = router;

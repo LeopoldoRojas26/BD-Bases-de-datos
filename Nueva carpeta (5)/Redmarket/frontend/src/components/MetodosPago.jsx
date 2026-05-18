@@ -22,11 +22,17 @@ export default function MetodosPago() {
   };
 
   const handleDelete = async (id) => {
+    if (!window.confirm("¿Estás seguro de eliminar este método de pago?")) {
+      return;
+    }
+
     try {
       await metodosPagoService.delete(id);
       cargarMetodos();
+      alert("✅ Método eliminado exitosamente.");
     } catch (error) {
       console.error("Error eliminando método:", error);
+      alert("❌ No se puede eliminar este método de pago porque ya tiene pagos asociados en el historial.");
     }
   };
 

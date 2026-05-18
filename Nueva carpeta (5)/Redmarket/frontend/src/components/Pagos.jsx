@@ -8,6 +8,7 @@ const Pagos = () => {
   const [metodos, setMetodos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [editingId, setEditingId] = useState(null);
 
   const [formData, setFormData] = useState({
     id_venta: '',
@@ -45,12 +46,23 @@ const Pagos = () => {
     e.preventDefault();
 
     try {
-      await pagosService.create({
-        id_venta: parseInt(formData.id_venta),
-        id_metodo_pago: parseInt(formData.id_metodo_pago),
-        monto: parseFloat(formData.monto),
-        fecha_pago: formData.fecha_pago,
-      });
+      if (editingId) {
+        await pagosService.update(editingId, {
+          id_venta: parseInt(formData.id_venta),
+          id_metodo_pago: parseInt(formData.id_metodo_pago),
+          monto: parseFloat(formData.monto),
+          fecha_pago: formData.fecha_pago,
+        });
+        alert('✅ Pago actualizado');
+      } else {
+        await pagosService.create({
+          id_venta: parseInt(formData.id_venta),
+          id_metodo_pago: parseInt(formData.id_metodo_pago),
+          monto: parseFloat(formData.monto),
+          fecha_pago: formData.fecha_pago,
+        });
+        alert('✅ Pago registrado');
+      }
 
       fetchData();
       setShowModal(false);
@@ -61,11 +73,35 @@ const Pagos = () => {
         monto: '',
         fecha_pago: '',
       });
-
-      alert('✅ Pago registrado');
+      setEditingId(null);
 
     } catch (error) {
-      alert('❌ Error registrando pago');
+      alert(editingId ? '❌ Error actualizando pago' : '❌ Error registrando pago');
+    }
+  };
+
+  const handleEdit = (pago) => {
+    setEditingId(pago.id_pago);
+    setFormData({
+      id_venta: pago.id_venta,
+      id_metodo_pago: pago.id_metodo_pago,
+      monto: parseFloat(pago.monto).toFixed(2),
+      fecha_pago: pago.fecha_pago ? new Date(pago.fecha_pago).toISOString().split('T')[0] : '',
+    });
+    setShowModal(true);
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('¿Estás seguro de que deseas ELIMINAR permanentemente este pago?')) {
+      return;
+    }
+
+    try {
+      await pagosService.delete(id);
+      alert('✅ Pago eliminado');
+      fetchData();
+    } catch (error) {
+      alert('❌ Error al eliminar el pago');
     }
   };
 
@@ -79,7 +115,16 @@ const Pagos = () => {
 
         <button
           className="btn-primary"
-          onClick={() => setShowModal(true)}
+          onClick={() => {
+            setEditingId(null);
+            setFormData({
+              id_venta: '',
+              id_metodo_pago: '',
+              monto: '',
+              fecha_pago: '',
+            });
+            setShowModal(true);
+          }}
         >
           + Nuevo Pago
         </button>
@@ -93,6 +138,7 @@ const Pagos = () => {
             <th>Método</th>
             <th>Monto</th>
             <th>Fecha</th>
+            <th>Acciones</th>
           </tr>
         </thead>
 
@@ -101,9 +147,17 @@ const Pagos = () => {
             <tr key={pago.id_pago}>
               <td>{pago.id_pago}</td>
               <td>Venta #{pago.id_venta}</td>
-              <td>{pago.id_metodo_pago}</td>
+              <td>{pago.metodo || pago.id_metodo_pago}</td>
               <td>${parseFloat(pago.monto).toFixed(2)}</td>
               <td>{new Date(pago.fecha_pago).toLocaleDateString()}</td>
+              <td>
+                <button className="btn-primary" onClick={() => handleEdit(pago)} style={{ marginRight: '5px' }}>
+                  Editar
+                </button>
+                <button className="btn-secondary" onClick={() => handleDelete(pago.id_pago)} style={{ backgroundColor: '#dc3545', color: 'white', border: 'none' }}>
+                  Eliminar
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
@@ -114,7 +168,7 @@ const Pagos = () => {
 
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
 
-            <h2>Nuevo Pago</h2>
+            <h2>{editingId ? 'Editar Pago' : 'Nuevo Pago'}</h2>
 
             <form onSubmit={handleSubmit}>
 
@@ -124,10 +178,15 @@ const Pagos = () => {
                 <select
                   required
                   value={formData.id_venta}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    id_venta: e.target.value,
-                  })}
+                  onChange={(e) => {
+                    const selectedId = e.target.value;
+                    const selectedVenta = ventas.find(v => v.id_venta === parseInt(selectedId));
+                    setFormData({
+                      ...formData,
+                      id_venta: selectedId,
+                      monto: selectedVenta ? selectedVenta.total : '',
+                    });
+                  }}
                 >
                   <option value="">Seleccionar venta</option>
 
@@ -167,11 +226,8 @@ const Pagos = () => {
                   type="number"
                   step="0.01"
                   required
+                  readOnly
                   value={formData.monto}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    monto: e.target.value,
-                  })}
                 />
               </div>
 

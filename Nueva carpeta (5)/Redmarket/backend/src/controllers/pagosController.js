@@ -36,12 +36,13 @@ const pagosController = {
 
   crear: async (req,res)=>{
     try{
-      const {id_venta,id_metodo_pago,monto}=req.body;
+      const {id_venta,id_metodo_pago,monto,fecha_pago}=req.body;
+      const fechaToInsert = fecha_pago ? fecha_pago : new Date();
 
       const result = await pool.query(`
-        INSERT INTO pago(id_venta,id_metodo_pago,monto)
-        VALUES($1,$2,$3) RETURNING *
-      `,[id_venta,id_metodo_pago,monto]);
+        INSERT INTO pago(id_venta,id_metodo_pago,monto,fecha_pago)
+        VALUES($1,$2,$3,$4) RETURNING *
+      `,[id_venta,id_metodo_pago,monto,fechaToInsert]);
 
       res.status(201).json({success:true,data:result.rows[0]});
     }catch(error){
@@ -52,16 +53,17 @@ const pagosController = {
   actualizar: async (req,res)=>{
     try{
       const {id}=req.params;
-      const {id_venta,id_metodo_pago,monto}=req.body;
+      const {id_venta,id_metodo_pago,monto,fecha_pago}=req.body;
 
       const result = await pool.query(`
         UPDATE pago
         SET id_venta=COALESCE($1,id_venta),
             id_metodo_pago=COALESCE($2,id_metodo_pago),
-            monto=COALESCE($3,monto)
-        WHERE id_pago=$4
+            monto=COALESCE($3,monto),
+            fecha_pago=COALESCE($4,fecha_pago)
+        WHERE id_pago=$5
         RETURNING *
-      `,[id_venta,id_metodo_pago,monto,id]);
+      `,[id_venta,id_metodo_pago,monto,fecha_pago,id]);
 
       if(result.rowCount===0)
         return res.status(404).json({success:false,error:'No encontrado'});

@@ -12,7 +12,9 @@ export const ventasService = {
   getAll: () => api.get('/ventas'),
   getById: (id) => api.get(`/ventas/${id}`),
   create: (data) => api.post('/ventas', data),
+  update: (id, data) => api.put(`/ventas/${id}`, data),
   getDetalles: (id) => api.get(`/ventas/${id}/detalles`),
+  delete: (id) => api.delete(`/ventas/${id}`),
 };
 
 export const clientesService = {
